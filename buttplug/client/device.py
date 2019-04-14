@@ -1,0 +1,2 @@
+class ButtplugClientDevice(object):
+    pass

@@ -1,12 +1,17 @@
-class Connector:
-    def __init__(self):
+from abc import abstractmethod
+from ..core.messages import ButtplugMessage
+
+
+class ButtplugClientConnector:
+
+    @abstractmethod
+    async def connect(self):
         pass
 
-    def connect(self):
+    @abstractmethod
+    async def disconnect(self):
         pass
 
-    def disconnect(self):
-        pass
-
-    def send(self):
+    @abstractmethod
+    async def send(self, msg: ButtplugMessage):
         pass

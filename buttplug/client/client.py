@@ -1,30 +1,32 @@
-from core.messages import *
+from connector import ButtplugClientConnector
+from ..core.messages import ButtplugMessage, StartScanning, StopScanning, Ok, Error
 
-class ButtplugClient:
-    def __init__(self, name, connector):
+
+class ButtplugClient(object):
+    def __init__(self, name: str, connector: ButtplugClientConnector):
         self.name = name
         self.connector = connector
 
-    def connect(self):
-        self.connector.connect();
+    async def connect(self):
+        await self.connector.connect()
 
-    def disconnect(self):
+    async def disconnect(self):
+        await self.connector.disconnect()
+
+    async def start_scanning(self):
+        await self._send_message(StartScanning(1))
+
+    async def stop_scanning(self):
+        await self._send_message(StopScanning(1))
+
+    async def request_log(self):
         pass
 
-    def start_scanning(self):
+    async def _send_message(self, msg: ButtplugMessage):
+        await self.connector.send(msg)
+
+    async def send_device_message(self):
         pass
 
-    def stop_scanning(self):
-        pass
-
-    def request_log(self):
-        pass
-
-    def send_message(self):
-        pass
-
-    def send_device_message(self):
-        pass
-
-    def send_message_expect_ok(self):
+    async def send_message_expect_ok(self):
         pass
