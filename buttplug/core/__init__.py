@@ -1,1 +1,2 @@
-__all__ = ["messages", "errors"]
+from .errors import ButtplugException, ButtplugDeviceException, ButtplugHandshakeException, ButtplugMessageException, ButtplugPingException, ButtplugUnknownException
+from .messages import ButtplugMessage, Ok, Error, Test, RequestServerInfo, ServerInfo, StartScanning, StopScanning

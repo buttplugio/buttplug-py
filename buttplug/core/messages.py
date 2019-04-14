@@ -18,22 +18,28 @@ class ButtplugMessageEncoder(json.JSONEncoder):
         return {type(obj).__name__: self.build_obj_dict(obj)}
 
 
-@dataclass
-class ButtplugMessage:
+# ButtplugMessage isn't a dataclass, because we usually set id later than
+# message construction, and don't want to require it in constructors
+class ButtplugMessage(object):
     SYSTEM_ID = 0
     DEFAULT_ID = 1
 
-    id: int
+    def __init__(self):
+        self.id = ButtplugMessage.DEFAULT_ID
 
     def as_json(self):
         return ButtplugMessageEncoder().encode(self)
 
     @staticmethod
     def from_json(json_str: str):
-        obj = json.loads(json_str)
-        classname = list(obj.keys())[0]
+        d = json.loads(json_str)
+        return ButtplugMessage.from_dict(d)
+
+    @staticmethod
+    def from_dict(msg_dict: dict):
+        classname = list(msg_dict.keys())[0]
         cls = getattr(sys.modules[__name__], classname)
-        return cls.from_json(list(obj.values())[0])
+        return cls.from_json(list(msg_dict.values())[0])
 
 
 @dataclass
@@ -52,8 +58,10 @@ class ButtplugDeviceInfoMessage(object):
 @dataclass
 class Ok(ButtplugOutgoingOnlyMessage, ButtplugMessage):
     @staticmethod
-    def from_json(obj: object):
-        return Ok(obj['Id'])
+    def from_json(obj: object) -> "Ok":
+        msg = Ok()
+        msg.id = obj['Id']
+        return msg
 
 
 @dataclass
@@ -62,8 +70,9 @@ class Error(ButtplugOutgoingOnlyMessage, ButtplugMessage):
     error_code: int
 
     @staticmethod
-    def from_json(obj: object):
-        return Error(obj['Id'], obj['ErrorMessage'], obj['ErrorCode'])
+    def from_json(obj: object) -> "Error":
+        msg = Error(obj['ErrorMessage'], obj['ErrorCode'])
+        msg.id = obj['Id']
 
 
 @dataclass
@@ -71,18 +80,22 @@ class Test(ButtplugMessage):
     test_string: str
 
     @staticmethod
-    def from_json(obj: object):
-        return Test(obj['Id'], obj['TestString'])
+    def from_json(obj: object) -> "Test":
+        msg = Test(obj['TestString'])
+        msg.id = obj['Id']
+        return msg
 
 
 @dataclass
 class RequestServerInfo(ButtplugMessage):
     client_name: str
-    message_version: int
+    message_version: int = 1
 
     @staticmethod
-    def from_json(obj: object):
-        return RequestServerInfo(obj['Id'], obj['ClientName'], obj['MessageVersion'])
+    def from_json(obj: object) -> "RequestServerInfo":
+        msg = RequestServerInfo(obj['ClientName'], obj['MessageVersion'])
+        msg.id = obj['Id']
+        return msg
 
 
 @dataclass
@@ -95,10 +108,12 @@ class ServerInfo(ButtplugMessage):
     max_ping_time: int = 0
 
     @staticmethod
-    def from_json(obj: object):
-        return ServerInfo(obj['Id'], obj['ServerName'], obj['MajorVersion'],
-                          obj['MinorVersion'], obj['BuildVersion'],
-                          obj['MessageVersion'], obj['MaxPingTime'])
+    def from_json(obj: object) -> "ServerInfo":
+        msg = ServerInfo(obj['ServerName'], obj['MajorVersion'],
+                         obj['MinorVersion'], obj['BuildVersion'],
+                         obj['MessageVersion'], obj['MaxPingTime'])
+        msg.id = obj['Id']
+        return msg
 
 
 class DeviceList(ButtplugMessage, ButtplugOutgoingOnlyMessage):

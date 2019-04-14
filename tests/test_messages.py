@@ -1,5 +1,5 @@
 import unittest
-from buttplug.core.messages import ButtplugMessage, Ok
+from buttplug.core import ButtplugMessage, Ok
 
 
 class TestMessages(unittest.TestCase):
