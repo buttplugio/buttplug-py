@@ -1,7 +1,19 @@
+from .device import ButtplugClientDevice
 from .connector import ButtplugClientConnector, ButtplugClientConnectorObserver
 from ..core import ButtplugMessage, StartScanning, StopScanning, Ok, RequestServerInfo, Error, ServerInfo, ButtplugMessageException
 from typing import Dict
 from asyncio import Future, get_event_loop
+from abc import abstractmethod
+
+
+class ButtplugClientDeviceObserver(object):
+    @abstractmethod
+    def device_added(self, device: ButtplugClientDevice):
+        pass
+
+    @abstractmethod
+    def device_removed(self, device: ButtplugClientDevice):
+        pass
 
 
 class ButtplugClient(ButtplugClientConnectorObserver):
@@ -10,6 +22,7 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         self.connector: ButtplugClientConnector = connector
         self.msg_tasks: Dict[int, Future] = {}
         self.msg_counter: int = 1
+        self.devices: Dict[int, ButtplugClientDevice] = {}
 
     async def connect(self):
         self.connector.add_observer(self)
