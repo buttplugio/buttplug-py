@@ -1,2 +1,2 @@
 from .errors import ButtplugException, ButtplugDeviceException, ButtplugHandshakeException, ButtplugMessageException, ButtplugPingException, ButtplugUnknownException
-from .messages import ButtplugMessage, Ok, Error, Test, RequestServerInfo, ServerInfo, StartScanning, StopScanning
+from .messages import ButtplugMessage, Ok, Error, Test, RequestServerInfo, ServerInfo, StartScanning, StopScanning, ButtplugErrorCode

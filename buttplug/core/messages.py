@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 import json
 import sys
+from typing import Dict, List
+from enum import IntEnum
 
 
 class ButtplugMessageEncoder(json.JSONEncoder):
@@ -39,29 +41,34 @@ class ButtplugMessage(object):
     def from_dict(msg_dict: dict):
         classname = list(msg_dict.keys())[0]
         cls = getattr(sys.modules[__name__], classname)
-        return cls.from_json(list(msg_dict.values())[0])
+        d = list(msg_dict.values())[0]
+        msg = cls.from_dict(d)
+        msg.id = d["Id"]
+        return msg
 
 
 @dataclass
 class ButtplugDeviceMessage(ButtplugMessage):
-    device_id: int
+    device_index: int
 
 
 class ButtplugOutgoingOnlyMessage(object):
     pass
 
 
-class ButtplugDeviceInfoMessage(object):
-    pass
-
-
 @dataclass
 class Ok(ButtplugOutgoingOnlyMessage, ButtplugMessage):
     @staticmethod
-    def from_json(obj: object) -> "Ok":
-        msg = Ok()
-        msg.id = obj['Id']
-        return msg
+    def from_dict(d: dict) -> "Ok":
+        return Ok()
+
+
+class ButtplugErrorCode(IntEnum):
+    ERROR_UNKNOWN = 0
+    ERROR_INIT = 1
+    ERROR_PING = 2
+    ERROR_MSG = 3
+    ERROR_DEVICE = 4
 
 
 @dataclass
@@ -70,9 +77,8 @@ class Error(ButtplugOutgoingOnlyMessage, ButtplugMessage):
     error_code: int
 
     @staticmethod
-    def from_json(obj: object) -> "Error":
-        msg = Error(obj['ErrorMessage'], obj['ErrorCode'])
-        msg.id = obj['Id']
+    def from_dict(d: dict) -> "Error":
+        return Error(d['ErrorMessage'], d['ErrorCode'])
 
 
 @dataclass
@@ -80,10 +86,8 @@ class Test(ButtplugMessage):
     test_string: str
 
     @staticmethod
-    def from_json(obj: object) -> "Test":
-        msg = Test(obj['TestString'])
-        msg.id = obj['Id']
-        return msg
+    def from_dict(d: dict) -> "Test":
+        return Test(d['TestString'])
 
 
 @dataclass
@@ -92,10 +96,8 @@ class RequestServerInfo(ButtplugMessage):
     message_version: int = 1
 
     @staticmethod
-    def from_json(obj: object) -> "RequestServerInfo":
-        msg = RequestServerInfo(obj['ClientName'], obj['MessageVersion'])
-        msg.id = obj['Id']
-        return msg
+    def from_dict(d: dict) -> "RequestServerInfo":
+        return RequestServerInfo(d['ClientName'], d['MessageVersion'])
 
 
 @dataclass
@@ -108,24 +110,10 @@ class ServerInfo(ButtplugMessage):
     max_ping_time: int = 0
 
     @staticmethod
-    def from_json(obj: object) -> "ServerInfo":
-        msg = ServerInfo(obj['ServerName'], obj['MajorVersion'],
-                         obj['MinorVersion'], obj['BuildVersion'],
-                         obj['MessageVersion'], obj['MaxPingTime'])
-        msg.id = obj['Id']
-        return msg
-
-
-class DeviceList(ButtplugMessage, ButtplugOutgoingOnlyMessage):
-    pass
-
-
-class DeviceAdded(ButtplugDeviceInfoMessage, ButtplugOutgoingOnlyMessage):
-    pass
-
-
-class DeviceRemoved(ButtplugDeviceInfoMessage, ButtplugOutgoingOnlyMessage):
-    pass
+    def from_dict(d: dict) -> "ServerInfo":
+        return ServerInfo(d['ServerName'], d['MajorVersion'],
+                          d['MinorVersion'], d['BuildVersion'],
+                          d['MessageVersion'], d['MaxPingTime'])
 
 
 @dataclass
@@ -134,66 +122,172 @@ class RequestDeviceList(ButtplugMessage):
 
 
 @dataclass
+class MessageAttributes:
+    feature_count: int
+
+    @staticmethod
+    def from_dict(d: dict) -> "MessageAttributes":
+        return MessageAttributes(d["FeatureCount"])
+
+
+@dataclass
+class DeviceInfo:
+    device_name: str
+    device_index: int
+    device_messages: Dict[str, MessageAttributes]
+
+    @staticmethod
+    def from_dict(d: dict) -> "DeviceInfo":
+        attrs = dict([(k, MessageAttributes.from_dict(v))
+                      for k, v in d["DeviceMessages"]])
+        return DeviceInfo(d["DeviceName"], d["DeviceIndex"], attrs)
+
+
+@dataclass
+class DeviceList(ButtplugMessage, ButtplugOutgoingOnlyMessage):
+    devices: List[DeviceInfo]
+
+    @staticmethod
+    def from_dict(d: dict) -> "DeviceList":
+        return DeviceList([DeviceInfo(x["DeviceName"],
+                                      x["DeviceIndex"],
+                                      x["DeviceMessages"])
+                           for x in d["Devices"]])
+
+
+@dataclass
+class DeviceAdded(ButtplugMessage, DeviceInfo, ButtplugOutgoingOnlyMessage):
+    @staticmethod
+    def from_dict(d: dict) -> "DeviceAdded":
+        msg = DeviceInfo.from_dict(d)
+        return DeviceAdded(msg.device_name, msg.device_index,
+                           msg.device_messages)
+
+
+@dataclass
+class DeviceRemoved(ButtplugMessage, ButtplugOutgoingOnlyMessage):
+    device_index: int
+
+    @staticmethod
+    def from_dict(d: dict) -> "DeviceRemoved":
+        return DeviceRemoved(d["DeviceIndex"])
+
+
+@dataclass
 class StartScanning(ButtplugMessage):
-    pass
+    @staticmethod
+    def from_dict(d: dict) -> "StartScanning":
+        return StartScanning()
 
 
 @dataclass
 class StopScanning(ButtplugMessage):
-    pass
+    @staticmethod
+    def from_dict(d: dict) -> "StopScanning":
+        return StopScanning()
 
 
 @dataclass
 class ScanningFinished(ButtplugMessage, ButtplugOutgoingOnlyMessage):
-    pass
+    @staticmethod
+    def from_dict(d: dict) -> "ScanningFinished":
+        return ScanningFinished()
 
 
+class ButtplugLogLevel(object):
+    off: str = "Off"
+    fatal: str = "Fatal"
+    error: str = "Error"
+    warn: str = "Warn"
+    info: str = "Info"
+    debug: str = "Debug"
+    trace: str = "Trace"
+
+
+@dataclass
 class RequestLog(ButtplugMessage):
-    pass
+    log_level: str
+
+    @staticmethod
+    def from_dict(d: dict) -> "RequestLog":
+        return RequestLog(d["LogLevel"])
 
 
+@dataclass
 class Log(ButtplugMessage, ButtplugOutgoingOnlyMessage):
-    pass
+    log_level: str
+    log_message: str
+
+    @staticmethod
+    def from_dict(d: dict) -> "Log":
+        return RequestLog(d["LogLevel"], d["LogMessage"])
 
 
 @dataclass
 class Ping(ButtplugMessage):
-    pass
+    @staticmethod
+    def from_dict(d: dict) -> "Ping":
+        return Ping()
 
 
-class FleshlightLaunchFW12Cmd(ButtplugMessage):
-    pass
+@dataclass
+class FleshlightLaunchFW12Cmd(ButtplugDeviceMessage):
+    position: int
+    speed: int
 
 
-class LovenseCmd(ButtplugMessage):
-    pass
+@dataclass
+class LovenseCmd(ButtplugDeviceMessage):
+    command: str
 
 
-class KiirooCmd(ButtplugMessage):
-    pass
+@dataclass
+class KiirooCmd(ButtplugDeviceMessage):
+    command: str
 
 
+@dataclass
 class VorzeA10CycloneCmd(ButtplugMessage):
-    pass
+    speed: int
+    clockwise: bool
 
 
-class SingleMotorVibrateCmd(ButtplugMessage):
-    pass
+@dataclass
+class SpeedSubcommand:
+    index: int
+    speed: float
 
 
-class VibrateCmd(ButtplugMessage):
-    pass
+@dataclass
+class VibrateCmd(ButtplugDeviceMessage):
+    speeds: List[SpeedSubcommand]
 
 
+@dataclass
+class RotateSubcommand:
+    index: int
+    speed: float
+    clockwise: bool
+
+
+@dataclass
 class RotateCmd(ButtplugMessage):
-    pass
+    rotations: List[RotateSubcommand]
 
 
+@dataclass
+class LinearSubcommand:
+    index: int
+    position: float
+    duration: int
+
+
+@dataclass
 class LinearCmd(ButtplugMessage):
     pass
 
 
-class StopDeviceCmd(ButtplugMessage):
+class StopDeviceCmd(ButtplugDeviceMessage):
     pass
 
 
