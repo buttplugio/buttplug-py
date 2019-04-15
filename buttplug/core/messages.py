@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 import json
 import sys
-from typing import Dict, List
+from typing import Dict, List, Any
 from enum import IntEnum
 
 
@@ -17,6 +17,9 @@ class ButtplugMessageEncoder(json.JSONEncoder):
                     for (key, value) in obj.__dict__.items())
 
     def default(self, obj):
+        # Helper classes should drop their names
+        if isinstance(obj, MessageAttributes) or isinstance(obj, DeviceInfo):
+            return self.build_obj_dict(obj)
         return {type(obj).__name__: self.build_obj_dict(obj)}
 
 
@@ -121,9 +124,10 @@ class RequestDeviceList(ButtplugMessage):
     pass
 
 
-@dataclass
 class MessageAttributes:
-    feature_count: int
+    def __init__(self, count: int = None):
+        if count is not None:
+            self.feature_count = count
 
     @staticmethod
     def from_dict(d: dict) -> "MessageAttributes":
@@ -134,12 +138,12 @@ class MessageAttributes:
 class DeviceInfo:
     device_name: str
     device_index: int
-    device_messages: Dict[str, MessageAttributes]
+    # TODO Make this use MessageAttributes, currently just a dict because serialization was broken.
+    device_messages: Dict[str, Dict[str, Any]]
 
     @staticmethod
     def from_dict(d: dict) -> "DeviceInfo":
-        attrs = dict([(k, MessageAttributes.from_dict(v))
-                      for k, v in d["DeviceMessages"]])
+        attrs = dict([(k, v) for k, v in d["DeviceMessages"].items()])
         return DeviceInfo(d["DeviceName"], d["DeviceIndex"], attrs)
 
 
@@ -155,13 +159,18 @@ class DeviceList(ButtplugMessage, ButtplugOutgoingOnlyMessage):
                            for x in d["Devices"]])
 
 
+# TODO Make this just be a DeviceInfo, currently own class because serialization was broken.
 @dataclass
-class DeviceAdded(ButtplugMessage, DeviceInfo, ButtplugOutgoingOnlyMessage):
+class DeviceAdded(ButtplugMessage, ButtplugOutgoingOnlyMessage):
+    device_name: str
+    device_index: int
+    # TODO Make this use MessageAttributes, currently just a dict because serialization was broken.
+    device_messages: Dict[str, Dict[str, Any]]
+
     @staticmethod
     def from_dict(d: dict) -> "DeviceAdded":
-        msg = DeviceInfo.from_dict(d)
-        return DeviceAdded(msg.device_name, msg.device_index,
-                           msg.device_messages)
+        attrs = dict([(k, v) for k, v in d["DeviceMessages"].items()])
+        return DeviceAdded(d["DeviceName"], d["DeviceIndex"], attrs)
 
 
 @dataclass
