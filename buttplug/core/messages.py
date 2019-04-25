@@ -18,7 +18,9 @@ class ButtplugMessageEncoder(json.JSONEncoder):
 
     def default(self, obj):
         # Helper classes should drop their names
-        if isinstance(obj, MessageAttributes) or isinstance(obj, DeviceInfo):
+        if isinstance(obj, (MessageAttributes, DeviceInfo,
+                            SpeedSubcommand, LinearSubcommand,
+                            RotateSubcommand)):
             return self.build_obj_dict(obj)
         return {type(obj).__name__: self.build_obj_dict(obj)}
 
@@ -270,6 +272,13 @@ class SpeedSubcommand:
 @dataclass
 class VibrateCmd(ButtplugDeviceMessage):
     speeds: List[SpeedSubcommand]
+
+    @staticmethod
+    def from_dict(d: dict) -> "VibrateCmd":
+        speeds = []
+        for cmd in d["Speeds"]:
+            speeds.append(SpeedSubcommand(cmd["Index"], cmd["Speed"]))
+        return VibrateCmd(d["DeviceIndex"], speeds)
 
 
 @dataclass

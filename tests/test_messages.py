@@ -1,5 +1,7 @@
 import unittest
-from buttplug.core import ButtplugMessage, Ok, Error, ButtplugErrorCode, Test, DeviceAdded, MessageAttributes, DeviceRemoved, DeviceInfo, DeviceList
+from buttplug.core import (ButtplugMessage, Ok, Error, ButtplugErrorCode,
+                           Test, DeviceAdded, MessageAttributes, DeviceRemoved,
+                           DeviceInfo, DeviceList, VibrateCmd, SpeedSubcommand)
 
 
 class TestMessages(unittest.TestCase):
@@ -50,3 +52,9 @@ class TestMessages(unittest.TestCase):
                                               "StopDeviceCmd": {}})])
         json_msg = "{\"DeviceList\": {\"Devices\": [{\"DeviceName\": \"TestDevice1\", \"DeviceIndex\": 0, \"DeviceMessages\": {\"SingleMotorVibrateCmd\": {}, \"VibrateCmd\": {\"FeatureCount\": 2}, \"StopDeviceCmd\": {}}}, {\"DeviceName\": \"TestDevice2\", \"DeviceIndex\": 1, \"DeviceMessages\": {\"FleshlightLaunchFW12Cmd\": {}, \"LinearCmd\": {\"FeatureCount\": 1}, \"StopDeviceCmd\": {}}}], \"Id\": 1}}"
         self.run_msg_test(device_list,  json_msg)
+
+    def test_vibrate_cmd(self):
+        vibrate_cmd = VibrateCmd(0, [SpeedSubcommand(0, 0),
+                                     SpeedSubcommand(1, 0.5)])
+        json_msg = "{\"VibrateCmd\": {\"DeviceIndex\": 0, \"Speeds\": [{\"Index\": 0, \"Speed\": 0}, {\"Index\": 1, \"Speed\": 0.5}], \"Id\": 1}}"
+        self.run_msg_test(vibrate_cmd,  json_msg)
