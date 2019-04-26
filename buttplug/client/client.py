@@ -4,7 +4,7 @@ from ..core import (ButtplugMessage, StartScanning, StopScanning, Ok,
                     ButtplugMessageException, RequestLog, DeviceAdded,
                     DeviceList, DeviceRemoved, ScanningFinished, DeviceInfo,
                     MessageAttributes, ButtplugDeviceException, VibrateCmd,
-                    SpeedSubcommand)
+                    SpeedSubcommand, RequestDeviceList)
 from ..utils import EventHandler
 from typing import Dict, Union, List
 from asyncio import Future, get_event_loop
@@ -17,21 +17,9 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         self.msg_tasks: Dict[int, Future] = {}
         self.msg_counter: int = 1
         self.devices: Dict[int, ButtplugClientDevice] = {}
-        self._scanning_finished_handler: EventHandler = EventHandler(self)
+        self.scanning_finished_handler: EventHandler = EventHandler(self)
         self.device_added_handler: EventHandler = EventHandler(self)
-        self._device_removed_handler: EventHandler = EventHandler(self)
-
-    # @property
-    # def device_added_handler(self):
-    #     return self._device_added_handler
-
-    @property
-    def device_removed_handler(self):
-        return self._device_removed_handler
-
-    @property
-    def scanning_finished_handler(self):
-        return self._scanning_finished_handler
+        self.device_removed_handler: EventHandler = EventHandler(self)
 
     async def connect(self):
         self.connector.add_observer(self)
@@ -43,6 +31,14 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         msg: ServerInfo = await self._send_message_expect_reply(initmsg,
                                                                 ServerInfo)
         print("Connected to server: " + msg.server_name)
+        dl: DeviceList = await self._send_message_expect_reply(RequestDeviceList(),
+                                                               DeviceList)
+        self._handle_device_list(dl)
+
+    def _handle_device_list(self, dl: DeviceList):
+        for dev in dl.devices:
+            self.devices[dev.device_index] = ButtplugClientDevice(self, dev)
+            self.device_added_handler(self.devices[dev.device_index])
 
     async def disconnect(self):
         await self.connector.disconnect()
@@ -69,16 +65,10 @@ class ButtplugClient(ButtplugClientConnectorObserver):
             da: DeviceAdded = msg
             self.devices[da.device_index] = ButtplugClientDevice(self, da)
             self.device_added_handler(self.devices[da.device_index])
-        elif isinstance(msg, DeviceList):
-            dl: DeviceList = msg
-            for dev in dl.devices:
-                self.devices[dev.device_index] = ButtplugClientDevice(self,
-                                                                      dev)
-                self._device_added_handler(self.devices[dev.device_index])
         elif isinstance(msg, DeviceRemoved):
             dr: DeviceRemoved = msg
             self.devices.remove(dr.device_index)
-            self._device_removed_handler(dr.device_index)
+            self.device_removed_handler(dr.device_index)
         elif isinstance(msg, ScanningFinished):
             self._scanning_finished_handler()
 
@@ -136,7 +126,7 @@ class ButtplugClientDevice(object):
                                                    List[float],
                                                    Dict[int, float]]):
         speeds_obj = []
-        if isinstance(speeds, float):
+        if isinstance(speeds, (float, int)):
             speeds_obj = [SpeedSubcommand(0, speeds)]
         elif isinstance(speeds, list):
             pass

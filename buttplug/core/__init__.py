@@ -8,4 +8,4 @@ from .messages import (ButtplugMessage, Ok, Error, Test,
                        MessageAttributes, DeviceList, DeviceRemoved,
                        DeviceInfo, RequestLog, ScanningFinished, VibrateCmd,
                        SpeedSubcommand, RotateCmd, LinearCmd, RotateSubcommand,
-                       LinearSubcommand)
+                       LinearSubcommand, RequestDeviceList)
