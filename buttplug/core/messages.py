@@ -289,20 +289,36 @@ class RotateSubcommand:
 
 
 @dataclass
-class RotateCmd(ButtplugMessage):
+class RotateCmd(ButtplugDeviceMessage):
     rotations: List[RotateSubcommand]
+
+    @staticmethod
+    def from_dict(d: dict) -> "RotateCmd":
+        rotations = []
+        for cmd in d["Rotations"]:
+            rotations.append(RotateSubcommand(cmd["Index"], cmd["Speed"],
+                                              cmd["Clockwise"]))
+        return RotateCmd(d["DeviceIndex"], rotations)
 
 
 @dataclass
 class LinearSubcommand:
     index: int
-    position: float
     duration: int
+    position: float
 
 
 @dataclass
-class LinearCmd(ButtplugMessage):
-    pass
+class LinearCmd(ButtplugDeviceMessage):
+    vectors: List[LinearSubcommand]
+
+    @staticmethod
+    def from_dict(d: dict) -> "LinearCmd":
+        vectors = []
+        for cmd in d["Vectors"]:
+            vectors.append(LinearSubcommand(cmd["Index"], cmd["Duration"],
+                                            cmd["Position"]))
+        return LinearCmd(d["DeviceIndex"], vectors)
 
 
 class StopDeviceCmd(ButtplugDeviceMessage):

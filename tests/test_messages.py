@@ -1,7 +1,9 @@
 import unittest
 from buttplug.core import (ButtplugMessage, Ok, Error, ButtplugErrorCode,
                            Test, DeviceAdded, MessageAttributes, DeviceRemoved,
-                           DeviceInfo, DeviceList, VibrateCmd, SpeedSubcommand)
+                           DeviceInfo, DeviceList, VibrateCmd, SpeedSubcommand,
+                           RotateCmd, RotateSubcommand, LinearCmd,
+                           LinearSubcommand)
 
 
 class TestMessages(unittest.TestCase):
@@ -58,3 +60,15 @@ class TestMessages(unittest.TestCase):
                                      SpeedSubcommand(1, 0.5)])
         json_msg = "{\"VibrateCmd\": {\"DeviceIndex\": 0, \"Speeds\": [{\"Index\": 0, \"Speed\": 0}, {\"Index\": 1, \"Speed\": 0.5}], \"Id\": 1}}"
         self.run_msg_test(vibrate_cmd,  json_msg)
+
+    def test_rotate_cmd(self):
+        rotate_cmd = RotateCmd(0, [RotateSubcommand(0, 0, False),
+                                   RotateSubcommand(1, 0.5, True)])
+        json_msg = "{\"RotateCmd\": {\"DeviceIndex\": 0, \"Rotations\": [{\"Index\": 0, \"Speed\": 0, \"Clockwise\": false}, {\"Index\": 1, \"Speed\": 0.5, \"Clockwise\": true}], \"Id\": 1}}"
+        self.run_msg_test(rotate_cmd,  json_msg)
+
+    def test_linear_cmd(self):
+        linear_cmd = LinearCmd(0, [LinearSubcommand(0, 100, 1.0),
+                                   LinearSubcommand(1, 500, 0.5)])
+        json_msg = "{\"LinearCmd\": {\"DeviceIndex\": 0, \"Vectors\": [{\"Index\": 0, \"Duration\": 100, \"Position\": 1.0}, {\"Index\": 1, \"Duration\": 500, \"Position\": 0.5}], \"Id\": 1}}"
+        self.run_msg_test(linear_cmd,  json_msg)

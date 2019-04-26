@@ -7,4 +7,5 @@ from .messages import (ButtplugMessage, Ok, Error, Test,
                        StopScanning, ButtplugErrorCode, DeviceAdded,
                        MessageAttributes, DeviceList, DeviceRemoved,
                        DeviceInfo, RequestLog, ScanningFinished, VibrateCmd,
-                       SpeedSubcommand)
+                       SpeedSubcommand, RotateCmd, LinearCmd, RotateSubcommand,
+                       LinearSubcommand)
