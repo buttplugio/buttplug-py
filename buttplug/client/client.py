@@ -4,9 +4,10 @@ from ..core import (ButtplugMessage, StartScanning, StopScanning, Ok,
                     ButtplugMessageException, RequestLog, DeviceAdded,
                     DeviceList, DeviceRemoved, ScanningFinished, DeviceInfo,
                     MessageAttributes, ButtplugDeviceException, VibrateCmd,
-                    SpeedSubcommand, RequestDeviceList)
+                    SpeedSubcommand, RequestDeviceList, RotateSubcommand,
+                    LinearSubcommand, RotateCmd, LinearCmd)
 from ..utils import EventHandler
-from typing import Dict, Union, List
+from typing import Dict, List, Tuple, Union
 from asyncio import Future, get_event_loop
 
 
@@ -102,7 +103,7 @@ class ButtplugClient(ButtplugClientConnectorObserver):
 
 
 class ButtplugClientDevice(object):
-    def __init__(self, client: ButtplugClient, device_msg: ButtplugMessage):
+    def __init__(self, client: ButtplugClient, device_msg: Union[DeviceInfo, DeviceAdded]):
         self._client = client
         if isinstance(device_msg, DeviceInfo):
             device_info: DeviceInfo = device_msg
@@ -129,10 +130,46 @@ class ButtplugClientDevice(object):
         if isinstance(speeds, (float, int)):
             speeds_obj = [SpeedSubcommand(0, speeds)]
         elif isinstance(speeds, list):
-            pass
+            speeds_obj = [SpeedSubcommand(x, speed)
+                          for x, speed in enumerate(speeds)]
         elif isinstance(speeds, dict):
-            pass
+            speeds_obj = [SpeedSubcommand(x, speed)
+                          for x, speed in speeds.items()]
 
         msg = VibrateCmd(self.index,
                          speeds_obj)
+        await self._client._send_message_expect_ok(msg)
+
+    async def send_rotate_cmd(self, rotations: Union[Tuple[float, bool],
+                                                     List[Tuple[float, bool]],
+                                                     Dict[int, Tuple[float, bool]]]):
+        rotations_obj = []
+        if isinstance(rotations, tuple):
+            rotations_obj = [RotateSubcommand(0, rotations[0], rotations[1])]
+        elif isinstance(rotations, list):
+            rotations_obj = [RotateSubcommand(x, rot[0], rot[1])
+                             for x, rot in enumerate(rotations)]
+        elif isinstance(rotations, dict):
+            rotations_obj = [RotateSubcommand(x, rot[0], rot[1])
+                             for x, rot in rotations.items()]
+
+        msg = RotateCmd(self.index,
+                        rotations_obj)
+        await self._client._send_message_expect_ok(msg)
+
+    async def send_linear_cmd(self, linear: Union[Tuple[int, float],
+                                                  List[Tuple[int, float]],
+                                                  Dict[int, Tuple[int, float]]]):
+        linear_obj = []
+        if isinstance(linear, tuple):
+            linear_obj = [LinearSubcommand(0, linear[0], linear[1])]
+        elif isinstance(linear, list):
+            linear_obj = [LinearSubcommand(x, l[0], l[1])
+                          for x, l in enumerate(linear)]
+        elif isinstance(linear, dict):
+            linear_obj = [LinearSubcommand(x, l[0], l[1])
+                          for x, l in linear.items()]
+
+        msg = LinearCmd(self.index,
+                        linear_obj)
         await self._client._send_message_expect_ok(msg)
