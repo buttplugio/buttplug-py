@@ -8,6 +8,10 @@ from enum import IntEnum
 
 
 class ButtplugMessageEncoder(json.JSONEncoder):
+    """Used for serializing ButtplugMessage types into Buttplug protocol JSON line
+    format.
+
+    """
     def pascal_case(self, cc_string):
         return ''.join(x.title() for x in cc_string.split('_'))
 

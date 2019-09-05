@@ -1,3 +1,14 @@
+# Buttplug Python
+# Client Module
+# Copyright 2019 Nonpolynomial
+# 3-Clause BSD Licensed
+
+"""
+client.py
+====================================
+Buttplug Client Module
+"""
+
 from .connector import ButtplugClientConnector, ButtplugClientConnectorObserver
 from ..core import (ButtplugMessage, StartScanning, StopScanning, Ok,
                     RequestServerInfo, Error, ServerInfo,
@@ -12,6 +23,13 @@ from asyncio import Future, get_event_loop
 
 
 class ButtplugClient(ButtplugClientConnectorObserver):
+    """Used to connect to Buttplug Servers.
+
+    Attributes:
+        name: Name of the client, which the server can use to show with 
+              connection status.
+        connector: Connector used to communicate with the Buttplug server.
+    """
     def __init__(self, name: str, connector: ButtplugClientConnector):
         self.name: str = name
         self.connector: ButtplugClientConnector = connector
