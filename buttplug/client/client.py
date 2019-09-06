@@ -30,9 +30,9 @@ class ButtplugClient(ButtplugClientConnectorObserver):
               connection status.
         connector: Connector used to communicate with the Buttplug server.
     """
-    def __init__(self, name: str, connector: ButtplugClientConnector):
+    def __init__(self, name: str):
         self.name: str = name
-        self.connector: ButtplugClientConnector = connector
+        self.connector: ButtplugClientConnector = None
         self.msg_tasks: Dict[int, Future] = {}
         self.msg_counter: int = 1
         self.devices: Dict[int, ButtplugClientDevice] = {}
@@ -40,7 +40,8 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         self.device_added_handler: EventHandler = EventHandler(self)
         self.device_removed_handler: EventHandler = EventHandler(self)
 
-    async def connect(self):
+    async def connect(self, connector):
+        self.connector = connector
         self.connector.add_observer(self)
         await self.connector.connect()
         await self._init()
