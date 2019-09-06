@@ -53,10 +53,10 @@ def device_added(emitter, dev: ButtplugClientDevice):
 
 async def main():
     # signal.signal(signal.SIGINT, signal_handler)
+    client = ButtplugClient("Test Client")
     connector = ButtplugClientWebsocketConnector("ws://127.0.0.1:12345")
-    client = ButtplugClient("Test Client", connector)
     client.device_added_handler += device_added
-    await client.connect()
+    await client.connect(connector)
     await client.start_scanning()
     task = asyncio.create_task(cancel_me())
     try:
