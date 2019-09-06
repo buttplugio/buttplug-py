@@ -7,8 +7,8 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name="buttplug",
-      version="0.0.1",
-      author="Nonpolynomial Labs, LLC",
+      version="1.0.0",
+      author="Nonpolynomial",
       author_email="kyle@nonpolynomial.com",
       description="Python implementation of the Buttplug Intimate Hardware Control Protocol.",
       long_description=long_description,
@@ -16,8 +16,10 @@ setup(name="buttplug",
       url="https://github.com/buttplugio/buttplug-py",
       classifiers=[
           "Programming Language :: Python :: 3",
-          "Development Status :: 3 - Alpha",
+          "Development Status :: 4 - Beta",
           "License :: OSI Approved :: BSD License",
           "Operating System :: OS Independent",
       ],
-      packages=find_packages())
+      install_requires=['websockets>=7.0', ],
+      packages=find_packages(exclude=["docs", "*.tests", "*.tests.*",
+                                      "tests.*", "tests"]))
