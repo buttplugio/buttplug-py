@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name="buttplug",
-      version="1.0.0",
+      version="0.0.2",
       author="Nonpolynomial",
       author_email="kyle@nonpolynomial.com",
       description="Python implementation of the Buttplug Intimate Hardware Control Protocol.",
