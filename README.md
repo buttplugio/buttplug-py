@@ -24,6 +24,8 @@ website at [https://buttplug.io](https://buttplug.io).
 ## Table Of Contents
 
 - [Support The Project](#support-the-project)
+- [Documentation](#documentation)
+- [Examples](#examples)
 - [License](#license)
 
 ## Support The Project
@@ -31,6 +33,27 @@ website at [https://buttplug.io](https://buttplug.io).
 If you find this project helpful, you can [support us via
 Patreon](http://patreon.com/qdot)! Every donation helps us afford more
 hardware to reverse, document, and write code for!
+
+## Documentation
+
+Library and API Documentation for buttplug-py is available at
+
+https://buttplug-py.docs.buttplug.io
+
+Other recommended reading includes
+
+The Buttplug Protocol Spec:
+
+https://buttplug-spec.docs.buttplug.io
+
+The Buttplug Developer Guide:
+
+https://buttplug-developer-guide.docs.buttplug.io
+
+## Examples
+
+Example code is available in the examples/ directory. It's heavily
+commented to hopefully make usage of the library clearer.
 
 ## License
 
