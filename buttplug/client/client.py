@@ -26,21 +26,57 @@ class ButtplugClient(ButtplugClientConnectorObserver):
     """Used to connect to Buttplug Servers.
 
     Attributes:
-        name: Name of the client, which the server can use to show with 
-              connection status.
-        connector: Connector used to communicate with the Buttplug server.
+
+        name (string):
+            name of the client, which the server can use to show
+            with connection status.
+
+        devices (Dict[int, ButtplugClientDevice]):
+            dict of devices currently connected to the Buttplug Server, indexed
+            by their server-provisioned numerical index.
+
+        device_added_handler (buttplug.utils.EventHandler):
+            Takes functions of the format f(a: ButtplugClientDevice) -> void.
+            Calls handlers whenever a new device is found by the Buttplug
+            Server.
+
+        device_removed_handler (buttplug.utils.EventHandler):
+            Takes functions of the format f(a: ButtplugClientDevice) -> void.
+            Calls handlers whenever a device has disconnected from the Buttplug
+            server.
+
+        scanning_finished_handler (buttplug.utils.EventHandler):
+            Takes functions of the format f() -> void. Calls handlers whenever
+            the server has finished scanning for devices.
+
     """
     def __init__(self, name: str):
         self.name: str = name
         self.connector: ButtplugClientConnector = None
-        self.msg_tasks: Dict[int, Future] = {}
-        self.msg_counter: int = 1
         self.devices: Dict[int, ButtplugClientDevice] = {}
         self.scanning_finished_handler: EventHandler = EventHandler(self)
         self.device_added_handler: EventHandler = EventHandler(self)
         self.device_removed_handler: EventHandler = EventHandler(self)
+        self._msg_tasks: Dict[int, Future] = {}
+        self._msg_counter: int = 1
 
     async def connect(self, connector):
+        """Connects to a Buttplug Server, using the connector passed to it.
+
+        Asynchronous function that connects to a Buttplug Server.
+
+        Args:
+            connector (ButtplugConnector): 
+                Connector to use to contact the server.
+
+        Returns:
+            void: 
+                Should just return on successful connect.
+
+        Raises:
+            ButtplugException:
+                On failed connect
+        """
         self.connector = connector
         self.connector.add_observer(self)
         await self.connector.connect()
@@ -73,8 +109,8 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         await self._send_message(RequestLog(log_level))
 
     async def _send_message(self, msg: ButtplugMessage):
-        msg.id = self.msg_counter
-        self.msg_counter += 1
+        msg.id = self._msg_counter
+        self._msg_counter += 1
         await self.connector.send(msg)
 
     async def send_device_message(self):
@@ -99,7 +135,7 @@ class ButtplugClient(ButtplugClientConnectorObserver):
                                          expectedClass) -> ButtplugMessage:
         f = get_event_loop().create_future()
         await self._send_message(msg)
-        self.msg_tasks[msg.id] = f
+        self._msg_tasks[msg.id] = f
         retmsg = await f
         if not isinstance(retmsg, expectedClass):
             if isinstance(retmsg, Error):
@@ -112,8 +148,8 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         await self._send_message_expect_reply(msg, Ok)
 
     async def handle_message(self, msg: ButtplugMessage):
-        if msg.id in self.msg_tasks.keys():
-            self.msg_tasks[msg.id].set_result(msg)
+        if msg.id in self._msg_tasks.keys():
+            self._msg_tasks[msg.id].set_result(msg)
             return
         await self._parse_message(msg)
 

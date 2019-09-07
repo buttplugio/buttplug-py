@@ -1,5 +1,5 @@
-Client Device API
-=================
+Device
+======
 
 .. autoclass:: buttplug.client.ButtplugClientDevice
    :members:

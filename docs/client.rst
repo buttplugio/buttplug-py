@@ -1,5 +1,5 @@
-Client API
-==========
+Client
+======
 
 .. autoclass:: buttplug.client.ButtplugClient
    :members:

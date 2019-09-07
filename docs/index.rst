@@ -6,8 +6,10 @@ buttplug-py: Buttplug Protocol Client for Python >= 3.7
    :caption: Contents:
 
    Home <self>
+   errors
    client
    device
+   eventhandler
 
 
 .. mdinclude:: ./index.md
