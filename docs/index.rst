@@ -21,7 +21,7 @@ Code Example
 
 Also `available on github <https://github.com/buttplugio/buttplug-py/blob/master/examples/test.py>`_
 
-.. literalinclude:: ../examples/test.py
+.. literalinclude:: ../examples/example.py
 
 Indices and tables
 ==================

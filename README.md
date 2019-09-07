@@ -47,8 +47,8 @@ Other recommended reading includes
 
 ## Examples
 
-Example code is available in the examples/ directory. It's heavily
-commented to hopefully make usage of the library clearer.
+Example code is available in the examples/ directory. Examples are
+heavily commented to hopefully make usage of the library clearer.
 
 ## License
 
