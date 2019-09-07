@@ -1,6 +1,11 @@
 from abc import abstractmethod
 from ..core.messages import ButtplugMessage
 from typing import List
+from ..core.errors import ButtplugError
+
+
+class ButtplugClientConnectorError(ButtplugError):
+    pass
 
 
 class ButtplugClientConnectorObserver(object):
@@ -13,6 +18,7 @@ class ButtplugClientConnector(object):
 
     def __init__(self):
         self._observers: List[ButtplugClientConnectorObserver] = list()
+        self._connected: bool = False
 
     @abstractmethod
     async def connect(self):
@@ -25,6 +31,10 @@ class ButtplugClientConnector(object):
     @abstractmethod
     async def send(self, msg: ButtplugMessage):
         pass
+
+    @property
+    def connected(self):
+        return self._connected
 
     def add_observer(self, obs: ButtplugClientConnectorObserver):
         self._observers.append(obs)

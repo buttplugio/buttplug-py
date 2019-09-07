@@ -20,7 +20,8 @@
 # Client and ClientDevice classes wrap all of the functionality you'll need to
 # talk to servers and access toys.
 from buttplug.client import (ButtplugClientWebsocketConnector, ButtplugClient,
-                             ButtplugClientDevice)
+                             ButtplugClientDevice, ButtplugClientConnectorError)
+from buttplug.core import ButtplugLogLevel
 import asyncio
 
 
@@ -121,13 +122,22 @@ async def main():
     #
     # Finally, we connect.
 
-    await client.connect(connector)
+    try:
+        await client.connect(connector)
+    except ButtplugClientConnectorError as e:
+        print("Could not connect to server, exiting: {}".format(e.message))
+        return
 
     # If this succeeds, we'll be connected. If not, we'll probably have some
-    # sort of exception thrown.
+    # sort of exception thrown of type ButtplugClientConnectorException
     #
-    # For now, we'll assume that we've connected successfully, and move on to
-    # looking for devices.
+    # Let's receive log messages, since they're a handy way to find out what
+    # the server is doing. We can choose the level from the ButtplugLogLevel
+    # object.
+
+    await client.request_log(ButtplugLogLevel.debug)
+
+    # Now we move on to looking for devices.
 
     await client.start_scanning()
 

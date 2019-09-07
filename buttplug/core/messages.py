@@ -4,8 +4,7 @@ from dataclasses import dataclass
 import json
 import sys
 from typing import Dict, List, Any
-from enum import IntEnum
-
+from .enums import ButtplugErrorCode
 
 class ButtplugMessageEncoder(json.JSONEncoder):
     """Used for serializing ButtplugMessage types into Buttplug protocol JSON line
@@ -70,14 +69,6 @@ class Ok(ButtplugOutgoingOnlyMessage, ButtplugMessage):
     @staticmethod
     def from_dict(d: dict) -> "Ok":
         return Ok()
-
-
-class ButtplugErrorCode(IntEnum):
-    ERROR_UNKNOWN = 0
-    ERROR_INIT = 1
-    ERROR_PING = 2
-    ERROR_MSG = 3
-    ERROR_DEVICE = 4
 
 
 @dataclass
@@ -209,16 +200,6 @@ class ScanningFinished(ButtplugMessage, ButtplugOutgoingOnlyMessage):
         return ScanningFinished()
 
 
-class ButtplugLogLevel(object):
-    off: str = "Off"
-    fatal: str = "Fatal"
-    error: str = "Error"
-    warn: str = "Warn"
-    info: str = "Info"
-    debug: str = "Debug"
-    trace: str = "Trace"
-
-
 @dataclass
 class RequestLog(ButtplugMessage):
     log_level: str
@@ -235,7 +216,7 @@ class Log(ButtplugMessage, ButtplugOutgoingOnlyMessage):
 
     @staticmethod
     def from_dict(d: dict) -> "Log":
-        return RequestLog(d["LogLevel"], d["LogMessage"])
+        return Log(d["LogLevel"], d["LogMessage"])
 
 
 @dataclass

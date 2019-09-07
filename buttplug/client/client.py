@@ -9,14 +9,19 @@ client.py
 Buttplug Client Module
 """
 
-from .connector import ButtplugClientConnector, ButtplugClientConnectorObserver
+from .connector import (ButtplugClientConnector,
+                        ButtplugClientConnectorObserver,
+                        ButtplugClientConnectorError)
 from ..core import (ButtplugMessage, StartScanning, StopScanning, Ok,
                     RequestServerInfo, Error, ServerInfo,
-                    ButtplugMessageException, RequestLog, DeviceAdded,
+                    ButtplugMessageError, RequestLog, DeviceAdded,
                     DeviceList, DeviceRemoved, ScanningFinished, DeviceInfo,
-                    MessageAttributes, ButtplugDeviceException, VibrateCmd,
-                    SpeedSubcommand, RequestDeviceList, RotateSubcommand,
-                    LinearSubcommand, RotateCmd, LinearCmd, StopDeviceCmd)
+                    MessageAttributes, VibrateCmd, SpeedSubcommand,
+                    RequestDeviceList, RotateSubcommand, LinearSubcommand,
+                    RotateCmd, LinearCmd, StopDeviceCmd, ButtplugErrorCode,
+                    ButtplugError, Log, ButtplugDeviceError,
+                    ButtplugHandshakeError, ButtplugPingError,
+                    ButtplugUnknownError)
 from ..utils import EventHandler
 from typing import Dict, List, Tuple, Union
 from asyncio import Future, get_event_loop
@@ -57,6 +62,7 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         self.scanning_finished_handler: EventHandler = EventHandler(self)
         self.device_added_handler: EventHandler = EventHandler(self)
         self.device_removed_handler: EventHandler = EventHandler(self)
+        self.log_handler: EventHandler = EventHandler(self)
         self._msg_tasks: Dict[int, Future] = {}
         self._msg_counter: int = 1
 
@@ -74,7 +80,7 @@ class ButtplugClient(ButtplugClientConnectorObserver):
                 Should just return on successful connect.
 
         Raises:
-            ButtplugException:
+            ButtplugError:
                 On failed connect
         """
         self.connector = connector
@@ -99,6 +105,8 @@ class ButtplugClient(ButtplugClientConnectorObserver):
     async def disconnect(self):
         """Disconnect from the remote server.
         """
+        if not self.connector.connected:
+            return
         await self.connector.disconnect()
 
     async def start_scanning(self):
@@ -139,13 +147,17 @@ class ButtplugClient(ButtplugClientConnectorObserver):
             self.devices.remove(dr.device_index)
             self.device_removed_handler(dr.device_index)
         elif isinstance(msg, ScanningFinished):
-            self._scanning_finished_handler()
+            self.scanning_finished_handler()
+        elif isinstance(msg, Log):
+            self.log_handler(Log)
 
     # What kinda typing should expectedClass be here? Could we make this a
     # generic function?
     async def _send_message_expect_reply(self,
                                          msg: ButtplugMessage,
                                          expectedClass) -> ButtplugMessage:
+        if not self.connector.connected:
+            raise ButtplugClientConnectorError("Client not connected to server")
         f = get_event_loop().create_future()
         await self._send_message(msg)
         self._msg_tasks[msg.id] = f
@@ -154,7 +166,7 @@ class ButtplugClient(ButtplugClientConnectorObserver):
             if isinstance(retmsg, Error):
                 # This will always throw
                 self._throw_error_msg_exception(retmsg)
-            raise ButtplugMessageException("Unexpected message" + retmsg)
+            raise ButtplugMessageError("Unexpected message" + retmsg)
         return retmsg
 
     async def _send_message_expect_ok(self, msg: ButtplugMessage) -> None:
@@ -167,7 +179,17 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         await self._parse_message(msg)
 
     def _throw_error_msg_exception(self, msg: Error):
-        pass
+        if msg.error_code == ButtplugErrorCode.ERROR_UNKNOWN:
+            raise ButtplugUnknownError(msg)
+        elif msg.error_code == ButtplugErrorCode.ERROR_DEVICE:
+            raise ButtplugDeviceError(msg)
+        elif msg.error_code == ButtplugErrorCode.ERROR_MESSAGE:
+            raise ButtplugMessageError(msg)
+        elif msg.error_code == ButtplugErrorCode.ERROR_PING:
+            raise ButtplugPingError(msg)
+        elif msg.error_code == ButtplugErrorCode.ERROR_INIT:
+            raise ButtplugHandshakeError(msg)
+        raise ButtplugError(msg)
 
 
 class ButtplugClientDevice(object):
@@ -203,7 +225,7 @@ class ButtplugClientDevice(object):
             for (msg_name, attrs) in device_info.device_messages.items():
                 self.allowed_messages[msg_name] = MessageAttributes(attrs.get("FeatureCount"))
         else:
-            raise ButtplugDeviceException(
+            raise ButtplugDeviceError(
                 "Cannot create device from message {}".format(device_msg.__name__))
 
     async def send_vibrate_cmd(self, speeds: Union[float,
@@ -229,6 +251,8 @@ class ButtplugClientDevice(object):
                   { 0: 0.5, 1: 1.0 } will set motor 0 to 0.5, motor 1 to 1.
 
         """
+        if "VibrateCmd" not in self.allowed_messages.keys():
+            raise ButtplugDeviceError("VibrateCmd not supported by device")
         speeds_obj = []
         if isinstance(speeds, (float, int)):
             speeds_obj = [SpeedSubcommand(0, speeds)]
@@ -271,6 +295,8 @@ class ButtplugClientDevice(object):
                   100% speed going clockwise.
 
         """
+        if "RotateCmd" not in self.allowed_messages.keys():
+            raise ButtplugDeviceError("RotateCmd not supported by device")
         rotations_obj = []
         if isinstance(rotations, tuple):
             rotations_obj = [RotateSubcommand(0, rotations[0], rotations[1])]
@@ -314,6 +340,8 @@ class ButtplugClientDevice(object):
                   while linear movement 1 will move to 10% position over 0.5s
 
         """
+        if "LinearCmd" not in self.allowed_messages.keys():
+            raise ButtplugDeviceError("LinearCmd not supported by device")
         linear_obj = []
         if isinstance(linear, tuple):
             linear_obj = [LinearSubcommand(0, linear[0], linear[1])]

@@ -7,6 +7,7 @@ buttplug-py: Buttplug Protocol Client for Python >= 3.7
 
    Home <self>
    errors
+   enums
    client
    device
    eventhandler

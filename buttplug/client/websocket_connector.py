@@ -1,4 +1,4 @@
-from .connector import ButtplugClientConnector
+from .connector import ButtplugClientConnector, ButtplugClientConnectorError
 from ..core.messages import ButtplugMessage
 import websockets
 import asyncio
@@ -14,7 +14,11 @@ class ButtplugClientWebsocketConnector(ButtplugClientConnector):
         self.ws: Optional[websockets.WebSocketClientProtocol]
 
     async def connect(self):
-        self.ws = await websockets.connect(self.addr)
+        try:
+            self.ws = await websockets.connect(self.addr)
+        except ConnectionRefusedError as e:
+            raise ButtplugClientConnectorError(e)
+        self._connected = True
         asyncio.create_task(self._consumer_handler())
 
     async def _consumer_handler(self):
@@ -40,3 +44,4 @@ class ButtplugClientWebsocketConnector(ButtplugClientConnector):
 
     async def disconnect(self):
         await self.ws.close()
+        self._connected = False
