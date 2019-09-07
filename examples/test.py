@@ -54,15 +54,19 @@ async def device_added_task(dev: ButtplugClientDevice):
     # These capabilities are held in the "messages" member of the
     # ButtplugClientDevice.
 
-    if "VibrateCmd" in dev.messages.keys():
+    if "VibrateCmd" in dev.allowed_messages.keys():
         # If we see that "VibrateCmd" is an allowed message, it means the
         # device can vibrate. We can call send_vibrate_cmd on the device and
         # it'll tell the server to make the device start vibrating.
         await dev.send_vibrate_cmd(0.5)
         # We let it vibrate at 50% speed for 1 second, then we stop it.
         await asyncio.sleep(1)
-        await dev.send_vibrate_cmd(0)
-    if "LinearCmd" in dev.messages.keys():
+        # We can use send_stop_device_cmd to stop the device from vibrating, as
+        # well as anything else it's doing. If the device was vibrating AND
+        # rotating, we could use send_vibrate_cmd(0) to just stop the
+        # vibration.
+        await dev.send_stop_device_cmd()
+    if "LinearCmd" in dev.allowed_messages.keys():
         # If we see that "LinearCmd" is an allowed message, it means the device
         # can move back and forth. We can call send_linear_cmd on the device
         # and it'll tell the server to make the device move to 90% of the
@@ -148,6 +152,7 @@ async def main():
 
     # Now that we've done that, we just disconnect and we're done!
     await client.disconnect()
+    print("Disconnected, quitting")
 
 # Here we are. The beginning. We'll spin up an asyncio event loop that runs the
 # main function. Remember that if you don't want to make your whole program

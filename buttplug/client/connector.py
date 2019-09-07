@@ -34,4 +34,4 @@ class ButtplugClientConnector(object):
 
     async def _notify_observers(self, msg: ButtplugMessage):
         for obs in self._observers:
-            await obs.handle_message(msg)
+            await obs._handle_message(msg)
