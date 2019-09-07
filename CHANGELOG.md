@@ -1,3 +1,14 @@
+# 0.1.0 (2019-09-07)
+
+## Features
+
+- Add support for request logs/log handling
+- Actually raise exceptions on errors
+- Lots of documentation additions
+- Adjust naming to match other libraries
+  (ButtplugDeviceClient.allowed_messages) or python idioms (Exceptions
+  end in Error)
+
 # 0.0.2 (2019-09-05)
 
 ## Features
