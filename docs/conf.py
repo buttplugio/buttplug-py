@@ -21,7 +21,7 @@ copyright = '2019, Nonpolynomial'
 author = 'Nonpolynomial'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '0.0.2'
 
 
 # -- General configuration ---------------------------------------------------
@@ -32,6 +32,7 @@ release = '1.0.0'
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "m2r",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -57,3 +58,4 @@ html_static_path = ['_static']
 
 
 html_sidebars = {'**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html']}
+source_suffix = ['.rst', '.md']
