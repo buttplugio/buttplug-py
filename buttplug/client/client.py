@@ -80,8 +80,8 @@ class ButtplugClient(ButtplugClientConnectorObserver):
                 Should just return on successful connect.
 
         Raises:
-            ButtplugError:
-                On failed connect
+            buttplug.client.ButtplugClientConnectorError:
+                On failed connect. Check message for context.
         """
         self.connector = connector
         self.connector.add_observer(self)

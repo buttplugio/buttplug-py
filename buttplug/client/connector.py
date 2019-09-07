@@ -5,6 +5,12 @@ from ..core.errors import ButtplugError
 
 
 class ButtplugClientConnectorError(ButtplugError):
+    """Raised when connector has connection issues.
+
+    Attributes:
+
+        message (str): Describes the nature of the exception
+    """
     pass
 
 
@@ -15,7 +21,6 @@ class ButtplugClientConnectorObserver(object):
 
 
 class ButtplugClientConnector(object):
-
     def __init__(self):
         self._observers: List[ButtplugClientConnectorObserver] = list()
         self._connected: bool = False
