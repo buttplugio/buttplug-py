@@ -42,13 +42,8 @@ https://buttplug-py.docs.buttplug.io
 
 Other recommended reading includes
 
-The Buttplug Protocol Spec:
-
-https://buttplug-spec.docs.buttplug.io
-
-The Buttplug Developer Guide:
-
-https://buttplug-developer-guide.docs.buttplug.io
+- [The Buttplug Protocol Spec](https://buttplug-spec.docs.buttplug.io)
+- [The Buttplug Developer Guide](https://buttplug-developer-guide.docs.buttplug.io)
 
 ## Examples
 
