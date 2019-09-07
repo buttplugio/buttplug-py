@@ -3,12 +3,6 @@
 # Copyright 2019 Nonpolynomial
 # 3-Clause BSD Licensed
 
-"""
-client.py
-====================================
-Buttplug Client Module
-"""
-
 from .connector import (ButtplugClientConnector,
                         ButtplugClientConnectorObserver,
                         ButtplugClientConnectorError)
@@ -54,6 +48,9 @@ class ButtplugClient(ButtplugClientConnectorObserver):
             Takes functions of the format f() -> void. Calls handlers whenever
             the server has finished scanning for devices.
 
+        log_handler (buttplug.utils.EventHandler):
+            Takes functions of the format f(a: Log) -> void. Calls handlers
+            whenever a new log message is received.
     """
     def __init__(self, name: str):
         self.name: str = name
