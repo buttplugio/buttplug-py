@@ -142,7 +142,6 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         elif isinstance(msg, DeviceRemoved):
             dr: DeviceRemoved = msg
             device = self.devices.pop(dr.device_index)
-            self.devices.remove(dr.device_index)
             self.device_removed_handler(dr.device_index)
         elif isinstance(msg, ScanningFinished):
             self.scanning_finished_handler()
