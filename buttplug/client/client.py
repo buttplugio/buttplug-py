@@ -86,7 +86,7 @@ class ButtplugClient(ButtplugClientConnectorObserver):
         await self._init()
 
     async def _init(self):
-        initmsg = RequestServerInfo("Client Test")
+        initmsg = RequestServerInfo(self.name)
         msg: ServerInfo = await self._send_message_expect_reply(initmsg,
                                                                 ServerInfo)
         print("Connected to server: " + msg.server_name)
