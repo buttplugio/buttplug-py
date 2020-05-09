@@ -180,7 +180,7 @@ class ButtplugClient(ButtplugClientConnectorObserver):
             raise ButtplugUnknownError(msg)
         elif msg.error_code == ButtplugErrorCode.ERROR_DEVICE:
             raise ButtplugDeviceError(msg)
-        elif msg.error_code == ButtplugErrorCode.ERROR_MESSAGE:
+        elif msg.error_code == ButtplugErrorCode.ERROR_MSG:
             raise ButtplugMessageError(msg)
         elif msg.error_code == ButtplugErrorCode.ERROR_PING:
             raise ButtplugPingError(msg)
