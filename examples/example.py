@@ -138,7 +138,7 @@ async def main():
     # the server is doing. We can choose the level from the ButtplugLogLevel
     # object.
 
-    await client.request_log(ButtplugLogLevel.debug)
+    # await client.request_log(ButtplugLogLevel.info)
 
     # Now we move on to looking for devices.
 
