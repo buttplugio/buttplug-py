@@ -82,6 +82,8 @@ async def device_added_task(dev: ButtplugClientDevice):
 def device_added(emitter, dev: ButtplugClientDevice):
     asyncio.create_task(device_added_task(dev))
 
+def device_removed(emitter, dev: ButtplugClientDevice):
+    print("Device removed: ", dev)
 
 async def main():
     # And now we're in the main function.
@@ -115,6 +117,7 @@ async def main():
     # setting up an event handler.
 
     client.device_added_handler += device_added
+    client.device_removed_handler += device_removed
 
     # Whenever we connect to a client, we'll instantly get a list of devices
     # already connected (yes, this sometimes happens, mostly due to windows
