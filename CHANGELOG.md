@@ -1,3 +1,11 @@
+# 0.2.0 (2020-05-10)
+
+## Bug Fixes
+
+- DeviceRemoved event no longer tries to use non-existent dict method
+- Fixed wrong enum naming
+- Client now actually sends client name
+
 # 0.1.0 (2019-09-07)
 
 ## Features
