@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-websockets = "==7.0"
+websockets = "==9.1"
 
 [requires]
 python_version = "3.8"
