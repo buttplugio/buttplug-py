@@ -23,6 +23,6 @@ setup(name="buttplug",
           "License :: OSI Approved :: BSD License",
           "Operating System :: OS Independent",
       ],
-      install_requires=['websockets>=7.0', ],
+      install_requires=['websockets>=10', ],
       packages=find_packages(exclude=["docs", "*.tests", "*.tests.*",
                                       "tests.*", "tests"]))
