@@ -1,3 +1,10 @@
+# 0.2.1 (2021-12-12)
+
+## Bug Fixes
+
+- Change print statements to logging calls so we don't interrupt other libraries.
+- Update to websockets 10 for security issues.
+
 # 0.2.0 (2020-05-10)
 
 ## Bug Fixes
