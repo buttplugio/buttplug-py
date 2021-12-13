@@ -23,10 +23,11 @@ from buttplug.client import (ButtplugClientWebsocketConnector, ButtplugClient,
                              ButtplugClientDevice, ButtplugClientConnectorError)
 from buttplug.core import ButtplugLogLevel
 import asyncio
-
+import logging
+import sys
 
 async def cancel_me():
-    print('cancel_me(): before sleep')
+    logging.debug('cancel_me(): before sleep')
 
     try:
         await asyncio.sleep(3600)
@@ -39,7 +40,7 @@ async def device_added_task(dev: ButtplugClientDevice):
     #
     # First off, we'll print the name of the devices.
 
-    print("Device Added: {}".format(dev.name))
+    logging.info("Device Added: {}".format(dev.name))
 
     # Once we've done that, we can send some commands to the device, depending
     # on what it can do. As of the current version I'm writing this for
@@ -83,7 +84,7 @@ def device_added(emitter, dev: ButtplugClientDevice):
     asyncio.create_task(device_added_task(dev))
 
 def device_removed(emitter, dev: ButtplugClientDevice):
-    print("Device removed: ", dev)
+    logging.info("Device removed: ", dev)
 
 async def main():
     # And now we're in the main function.
@@ -128,7 +129,7 @@ async def main():
     try:
         await client.connect(connector)
     except ButtplugClientConnectorError as e:
-        print("Could not connect to server, exiting: {}".format(e.message))
+        logging.error("Could not connect to server, exiting: {}".format(e.message))
         return
 
     # If this succeeds, we'll be connected. If not, we'll probably have some
@@ -165,11 +166,14 @@ async def main():
 
     # Now that we've done that, we just disconnect and we're done!
     await client.disconnect()
-    print("Disconnected, quitting")
+    logging.info("Disconnected, quitting")
 
 # Here we are. The beginning. We'll spin up an asyncio event loop that runs the
 # main function. Remember that if you don't want to make your whole program
 # async (because, for instance, it's already written in a non-async way), you
 # can always create a thread for the asyncio loop to run in, and do some sort
 # of communication in/out of that thread to the rest of your program.
+#
+# But first, set up logging
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 asyncio.run(main(), debug=True)

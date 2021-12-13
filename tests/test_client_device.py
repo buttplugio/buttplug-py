@@ -1,5 +1,6 @@
 import unittest
 import pytest
+import logging
 from buttplug.core import (ButtplugMessage, Ok, Error, ButtplugErrorCode,
                            Test, DeviceAdded, MessageAttributes, DeviceRemoved,
                            DeviceInfo, DeviceList, VibrateCmd, SpeedSubcommand,
@@ -13,7 +14,7 @@ class DummyClient(object):
         self.last_message: ButtplugMessage = None
 
     async def _send_message_expect_ok(self, msg: ButtplugMessage):
-        print("Got message")
+        logging.debug("Got message")
         self.last_message = msg
 
 
