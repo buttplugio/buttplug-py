@@ -1,20 +1,19 @@
-# DEPRECATION WARNING
+# DEPRECATION (at some point) WARNING
 
-This project will be deprecated and archived in the coming weeks/months, with
-the Python implementation of buttplug moving to an FFI layer on top of
-buttplug-rs. Bugs are currently being triaged from this library to
-buttplug-rs-ffi.
+This project will be deprecated and archived at some point in the future (still not sure when that
+is), with the Python implementation of buttplug moving to an FFI layer on top of buttplug-rs. Bugs
+are currently being triaged from this library to buttplug-rs-ffi.
 
 The new project will be at
 
 [https://github.com/buttplugio/buttplug-rs-ffi/](https://github.com/buttplugio/buttplug-rs-ffi/)
 
-The API will change, though minimally (mostly connection in methods), and we
-will most likely still distribute the pypi package under the same name
-("buttplug").
+The API will change, though minimally (mostly connection in methods), and we will most likely still
+distribute the pypi package under the same name ("buttplug").
 
-You may continue to use this repo for the time being, just wanted everyone to be
-aware of the changes happening in the near future.
+You may continue to use this repo for the time being (so far it's been a year and I've gotten
+nowhere on that upgrade, and this library still works fine!), just wanted everyone to be aware of
+the changes happening in the near future.
 
 # buttplug-py
 
@@ -22,25 +21,21 @@ aware of the changes happening in the near future.
 [![Python version](https://img.shields.io/pypi/pyversions/buttplug)](http://pypi.org/project/buttplug)
 
 [![Patreon donate button](https://img.shields.io/badge/patreon-donate-yellow.svg)](https://www.patreon.com/qdot)
-[![Discourse Forum](https://img.shields.io/badge/discourse-forum-blue.svg)](https://metafetish.club)
 [![Discord](https://img.shields.io/discord/353303527587708932.svg?logo=discord)](https://discord.buttplug.io)
 [![Twitter](https://img.shields.io/twitter/follow/buttplugio.svg?style=social&logo=twitter)](https://twitter.com/buttplugio)
 
-Buttplug-py is a python implementation of the Core and Client portions
-of the Buttplug Sex Toy Control Protocol. It allows users to write
-applications that can connect to Buttplug Servers, such as the
-[Intiface Desktop
-Application](https://github.com/intiface/intiface-desktop) or Intiface
-[C# CLI](https://github.com/intiface/intiface-cli-csharp) or [Node
+Buttplug-py is a python implementation of the Core and Client portions of the Buttplug Sex Toy
+Control Protocol. It allows users to write applications that can connect to Buttplug Servers, such
+as the [Intiface Desktop Application](https://github.com/intiface/intiface-desktop) or Intiface [C#
+CLI](https://github.com/intiface/intiface-cli-csharp) or [Node
 CLI](https://github.com/intiface/intiface-cli-node).
 
-A python-based Buttplug server is certainly possible, and may happen
-in the future. For the moment, we are mostly trying to make it easier
-for people to write Buttplug applications in python that can access
-the already existing server implementations.
+A python-based Buttplug server is certainly possible, and may happen in the future. For the moment,
+we are mostly trying to make it easier for people to write Buttplug applications in python that can
+access the already existing server implementations.
 
-For more information on the Buttplug project, check out the project
-website at [https://buttplug.io](https://buttplug.io).
+For more information on the Buttplug project, check out the project website at
+[https://buttplug.io](https://buttplug.io).
 
 ## Table Of Contents
 
@@ -51,9 +46,8 @@ website at [https://buttplug.io](https://buttplug.io).
 
 ## Support The Project
 
-If you find this project helpful, you can [support us via
-Patreon](http://patreon.com/qdot)! Every donation helps us afford more
-hardware to reverse, document, and write code for!
+If you find this project helpful, you can [support us via Patreon](http://patreon.com/qdot)! Every
+donation helps us afford more hardware to reverse, document, and write code for!
 
 ## Documentation
 
@@ -68,10 +62,9 @@ Other recommended reading includes
 
 ## Examples
 
-Example code is available in the examples/ directory. Examples are
-heavily commented to hopefully make usage of the library clearer.
+Example code is available in the examples/ directory. Examples are heavily commented to hopefully
+make usage of the library clearer.
 
 ## License
 
-Buttplug is BSD 3-Clause licensed. More information is available in
-the LICENSE file.
+Buttplug is BSD 3-Clause licensed. More information is available in the LICENSE file.
