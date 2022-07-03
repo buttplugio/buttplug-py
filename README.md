@@ -1,20 +1,3 @@
-# DEPRECATION (at some point) WARNING
-
-This project will be deprecated and archived at some point in the future (still not sure when that
-is), with the Python implementation of buttplug moving to an FFI layer on top of buttplug-rs. Bugs
-are currently being triaged from this library to buttplug-rs-ffi.
-
-The new project will be at
-
-[https://github.com/buttplugio/buttplug-rs-ffi/](https://github.com/buttplugio/buttplug-rs-ffi/)
-
-The API will change, though minimally (mostly connection in methods), and we will most likely still
-distribute the pypi package under the same name ("buttplug").
-
-You may continue to use this repo for the time being (so far it's been a year and I've gotten
-nowhere on that upgrade, and this library still works fine!), just wanted everyone to be aware of
-the changes happening in the near future.
-
 # buttplug-py
 
 [![PyPi version](https://img.shields.io/pypi/v/buttplug)](http://pypi.org/project/buttplug)
@@ -30,6 +13,10 @@ as the [Intiface Desktop Application](https://github.com/intiface/intiface-deskt
 
 For more information on the Buttplug project, check out the project website at
 [https://buttplug.io](https://buttplug.io).
+
+## NO LONGER DEPRECATED
+
+If you're thinking "but wasn't buttplug-py deprecated?"... Yeah it was but honestly it works and converting to the new rust FFI is going to take a while and it hasn't been on my todo list in well over a year, so we'll actually just call this still in production for now.
 
 ## Table Of Contents
 
