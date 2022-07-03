@@ -1,3 +1,9 @@
+# 0.2.2 (2022-07-03)
+
+## Bug Fixes
+
+- device_removed_handlers now correctly receive the removed ButtplugClientDevice rather than its integer id.
+
 # 0.2.1 (2021-12-12)
 
 ## Bug Fixes
