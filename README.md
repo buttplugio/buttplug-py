@@ -1,4 +1,4 @@
-# buttplug-py
+# buttplug-py (DEPRECATED)
 
 [![PyPi version](https://img.shields.io/pypi/v/buttplug)](http://pypi.org/project/buttplug)
 [![Python version](https://img.shields.io/pypi/pyversions/buttplug)](http://pypi.org/project/buttplug)
@@ -7,16 +7,16 @@
 [![Discord](https://img.shields.io/discord/353303527587708932.svg?logo=discord)](https://discord.buttplug.io)
 [![Twitter](https://img.shields.io/twitter/follow/buttplugio.svg?style=social&logo=twitter)](https://twitter.com/buttplugio)
 
+THIS VERSION OF BUTTPLUG-PY IS DEPRECATED IN FAVOR OF THE [COMMUNITY MAINTAINED LIBRARY](https://github.com/Siege-Wizard/buttplug-py). The community maintained library brings in support for Buttplug Spec v3, as well as many nice to have features. It is recommended to use that instead of this library.
+
+## Old Intro
+
 Buttplug-py is a python implementation of the Core and Client portions of the Buttplug Sex Toy
 Control Protocol. It allows users to write applications that can connect to Buttplug Servers, such
 as the [Intiface Desktop Application](https://github.com/intiface/intiface-desktop) or [Intiface Rust CLI](https://github.com/intiface/intiface-cli-rs).
 
 For more information on the Buttplug project, check out the project website at
 [https://buttplug.io](https://buttplug.io).
-
-## NO LONGER DEPRECATED
-
-If you're thinking "but wasn't buttplug-py deprecated?"... Yeah it was but honestly it works and converting to the new rust FFI is going to take a while and it hasn't been on my todo list in well over a year, so we'll actually just call this still in production for now.
 
 ## Table Of Contents
 
