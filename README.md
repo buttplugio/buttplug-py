@@ -7,7 +7,9 @@
 [![Discord](https://img.shields.io/discord/353303527587708932.svg?logo=discord)](https://discord.buttplug.io)
 [![Twitter](https://img.shields.io/twitter/follow/buttplugio.svg?style=social&logo=twitter)](https://twitter.com/buttplugio)
 
-THIS VERSION OF BUTTPLUG-PY IS DEPRECATED IN FAVOR OF THE [COMMUNITY MAINTAINED LIBRARY](https://github.com/Siege-Wizard/buttplug-py). The community maintained library brings in support for Buttplug Spec v3, as well as many nice to have features. It is recommended to use that instead of this library.
+### THIS VERSION OF BUTTPLUG-PY IS DEPRECATED IN FAVOR OF THE [COMMUNITY MAINTAINED LIBRARY](https://github.com/Siege-Wizard/buttplug-py). 
+
+The community maintained library brings in support for Buttplug Spec v3, as well as many nice to have features. It is recommended to use that instead of this library.
 
 ## Old Intro
 
