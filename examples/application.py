@@ -11,7 +11,7 @@ Prerequisites:
 
 import asyncio
 
-from buttplug import ButtplugClient, InputType, OutputType
+from buttplug import ButtplugClient, DeviceOutputCommand, InputType, OutputType
 from buttplug.errors import ButtplugDeviceError, ButtplugError
 
 
@@ -23,9 +23,7 @@ def print_device_capabilities(device) -> None:
     outputs = []
     if device.has_output(OutputType.VIBRATE):
         outputs.append("Vibrate")
-    if device.has_output(OutputType.ROTATE) or device.has_output(
-        OutputType.ROTATE_WITH_DIRECTION
-    ):
+    if device.has_output(OutputType.ROTATE):
         outputs.append("Rotate")
     if device.has_output(OutputType.OSCILLATE):
         outputs.append("Oscillate")
@@ -130,7 +128,9 @@ async def main() -> None:
                         intensity = percent / 100.0
                         for device in devices:
                             if device.has_output(OutputType.VIBRATE):
-                                await device.vibrate(intensity)
+                                await device.run_output(
+                                    DeviceOutputCommand(OutputType.VIBRATE, intensity)
+                                )
                                 print(f"  {device.name}: vibrating at {percent}%")
                     else:
                         print("  Usage: v <0-100>")
@@ -147,7 +147,7 @@ async def main() -> None:
                 for device in devices:
                     if device.has_input(InputType.BATTERY):
                         try:
-                            battery = await device.battery_level()
+                            battery = await device.battery()
                             print(f"  {device.name}: {battery * 100:.0f}% battery")
                         except ButtplugDeviceError as e:
                             print(f"  {device.name}: could not read battery - {e}")

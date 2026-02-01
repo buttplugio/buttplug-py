@@ -3,7 +3,7 @@
 A Python client library for the Buttplug protocol v4.
 
 Basic usage:
-    from buttplug import ButtplugClient, OutputType
+    from buttplug import ButtplugClient, DeviceOutputCommand, OutputType
 
     async def main():
         client = ButtplugClient("My App")
@@ -15,7 +15,7 @@ Basic usage:
 
         for device in client.devices.values():
             if device.has_output(OutputType.VIBRATE):
-                await device.vibrate(0.5)
+                await device.run_output(DeviceOutputCommand(OutputType.VIBRATE, 0.5))
                 await asyncio.sleep(1)
                 await device.stop()
 
@@ -28,6 +28,7 @@ __version__ = "1.0.0"
 
 # Client and Device (public API)
 from buttplug.client import ButtplugClient
+from buttplug.command import DeviceOutputCommand
 from buttplug.device import ButtplugDevice
 from buttplug.enums import ErrorCode, InputCommandType, InputType, OutputType
 
@@ -64,6 +65,7 @@ __all__ = [
     # Client and Device
     "ButtplugClient",
     "ButtplugDevice",
+    "DeviceOutputCommand",
     # Feature-level control
     "DeviceFeature",
     "CommandValue",

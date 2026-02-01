@@ -19,7 +19,6 @@ class OutputType(StrEnum):
 
     VIBRATE = "Vibrate"
     ROTATE = "Rotate"
-    ROTATE_WITH_DIRECTION = "RotateWithDirection"
     OSCILLATE = "Oscillate"
     CONSTRICT = "Constrict"
     SPRAY = "Spray"

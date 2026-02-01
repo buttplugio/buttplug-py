@@ -15,6 +15,7 @@ from buttplug.errors import ButtplugDeviceError
 
 if TYPE_CHECKING:
     from buttplug.client import ButtplugClient
+    from buttplug.command import DeviceOutputCommand
 
 
 # Type alias for command values - can be float (0.0-1.0 percent) or int (steps)
@@ -34,10 +35,10 @@ class DeviceFeature:
 
     Example:
         # Using percent (recommended for most cases)
-        await feature.vibrate(0.5)  # 50% intensity
+        await feature.run_output(DeviceOutputCommand(OutputType.VIBRATE, 0.5))
 
         # Using steps (for precise hardware control)
-        await feature.vibrate(10)  # Step 10 out of step_count
+        await feature.run_output(DeviceOutputCommand(OutputType.VIBRATE, 10))
 
         # Check step range first
         print(f"Steps: {feature.step_count(OutputType.VIBRATE)}")
@@ -186,53 +187,19 @@ class DeviceFeature:
 
     # ============ Feature-Level Command Methods ============
 
-    async def vibrate(self, value: CommandValue) -> None:
-        """Set vibration level.
+    async def run_output(self, command: DeviceOutputCommand) -> None:
+        """Send an output command to this feature.
 
         Args:
-            value: Float 0.0-1.0 (percent) or int (step value).
-        """
-        await self._send_output(OutputType.VIBRATE, value)
+            command: The output command specifying type, value, and optional duration.
 
-    async def rotate(self, value: CommandValue, clockwise: bool = True) -> None:
-        """Set rotation speed and direction.
-
-        Args:
-            value: Float 0.0-1.0 (percent) or int (step value).
-            clockwise: Rotation direction.
+        Raises:
+            ButtplugDeviceError: If this feature doesn't support the output type.
         """
-        if self.has_output(OutputType.ROTATE_WITH_DIRECTION):
-            await self._send_rotate_with_direction(value, clockwise)
+        if command.output_type == OutputType.POSITION_WITH_DURATION:
+            await self._send_position_with_duration(command.value, command.duration or 0)
         else:
-            await self._send_output(OutputType.ROTATE, value)
-
-    async def oscillate(self, value: CommandValue) -> None:
-        """Set oscillation speed.
-
-        Args:
-            value: Float 0.0-1.0 (percent) or int (step value).
-        """
-        await self._send_output(OutputType.OSCILLATE, value)
-
-    async def constrict(self, value: CommandValue) -> None:
-        """Set constriction pressure.
-
-        Args:
-            value: Float 0.0-1.0 (percent) or int (step value).
-        """
-        await self._send_output(OutputType.CONSTRICT, value)
-
-    async def position(self, value: CommandValue, duration_ms: int = 0) -> None:
-        """Move to position.
-
-        Args:
-            value: Float 0.0-1.0 (percent) or int (step value).
-            duration_ms: Time in ms to reach position (0 = instant).
-        """
-        if self.has_output(OutputType.POSITION_WITH_DURATION):
-            await self._send_position_with_duration(value, duration_ms)
-        else:
-            await self._send_output(OutputType.POSITION, value)
+            await self._send_output(command.output_type, command.value)
 
     async def stop(self) -> None:
         """Stop this feature's outputs."""
@@ -248,12 +215,12 @@ class DeviceFeature:
         response = await self._client._send_device_message(msg)
         self._check_response(response)
 
-    async def battery_level(self) -> float:
+    async def battery(self) -> float:
         """Read battery level (0.0-1.0)."""
         reading = await self._read_input(InputType.BATTERY)
         return reading / 100.0
 
-    async def rssi_level(self) -> int:
+    async def rssi(self) -> int:
         """Read RSSI signal strength (dBm)."""
         return await self._read_input(InputType.RSSI)
 
@@ -271,21 +238,6 @@ class DeviceFeature:
             device_index=self._device_index,
             feature_index=self.index,
             command={output_name: {"Value": step}},
-        )
-        response = await self._client._send_device_message(msg)
-        self._check_response(response)
-
-    async def _send_rotate_with_direction(self, value: CommandValue, clockwise: bool) -> None:
-        """Send rotate with direction command."""
-        from buttplug._messages import OutputCmd
-
-        step = self.convert_to_step(OutputType.ROTATE_WITH_DIRECTION, value)
-
-        msg = OutputCmd(
-            id=0,
-            device_index=self._device_index,
-            feature_index=self.index,
-            command={"RotateWithDirection": {"Value": step, "Clockwise": clockwise}},
         )
         response = await self._client._send_device_message(msg)
         self._check_response(response)

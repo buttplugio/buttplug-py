@@ -18,32 +18,19 @@ def sample_device_list_data() -> dict:
                     "0": {
                         "FeatureIndex": 0,
                         "FeatureDescription": "Clitoral Stimulator",
-                        "Output": {
-                            "Vibrate": {
-                                "Value": [0, 20]
-                            }
-                        }
+                        "Output": {"Vibrate": {"Value": [0, 20]}},
                     },
                     "1": {
                         "FeatureIndex": 1,
                         "FeatureDescription": "G-Spot Motor",
-                        "Output": {
-                            "Vibrate": {
-                                "Value": [0, 20]
-                            }
-                        }
+                        "Output": {"Vibrate": {"Value": [0, 20]}},
                     },
                     "2": {
                         "FeatureIndex": 2,
                         "FeatureDescription": "Battery",
-                        "Input": {
-                            "Battery": {
-                                "Value": [[0, 100]],
-                                "Command": ["Read"]
-                            }
-                        }
-                    }
-                }
+                        "Input": {"Battery": {"Value": [[0, 100]], "Command": ["Read"]}},
+                    },
+                },
             },
             "1": {
                 "DeviceName": "Test Stroker",
@@ -54,28 +41,16 @@ def sample_device_list_data() -> dict:
                         "FeatureIndex": 0,
                         "FeatureDescription": "Stroker",
                         "Output": {
-                            "HwPositionWithDuration": {
-                                "Value": [0, 100],
-                                "Duration": [0, 1000]
-                            }
-                        }
+                            "HwPositionWithDuration": {"Value": [0, 100], "Duration": [0, 1000]}
+                        },
                     }
-                }
-            }
-        }
+                },
+            },
+        },
     }
 
 
 @pytest.fixture
 def sample_input_reading_data() -> dict:
     """Sample InputReading message data from protocol."""
-    return {
-        "Id": 5,
-        "DeviceIndex": 0,
-        "FeatureIndex": 2,
-        "Reading": {
-            "Battery": {
-                "Value": 75
-            }
-        }
-    }
+    return {"Id": 5, "DeviceIndex": 0, "FeatureIndex": 2, "Reading": {"Battery": {"Value": 75}}}

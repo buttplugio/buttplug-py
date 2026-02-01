@@ -29,7 +29,7 @@ uv add buttplug
 
 ```python
 import asyncio
-from buttplug import ButtplugClient, OutputType
+from buttplug import ButtplugClient, DeviceOutputCommand, OutputType
 
 async def main():
     # Create a client
@@ -48,7 +48,7 @@ async def main():
         print(f"Found: {device.name}")
 
         if device.has_output(OutputType.VIBRATE):
-            await device.vibrate(0.5)  # 50% intensity
+            await device.run_output(DeviceOutputCommand(OutputType.VIBRATE, 0.5))
             await asyncio.sleep(2)
             await device.stop()
 
@@ -59,7 +59,7 @@ asyncio.run(main())
 
 ## Features
 
-- **Simple API**: Easy-to-use methods like `vibrate()`, `rotate()`, `position()`
+- **Simple API**: Unified `run_output()` method for all output types
 - **Full Protocol Support**: Implements Buttplug protocol v4
 - **Type Hints**: Full typing support for IDE autocomplete and type checking
 - **Async/Await**: Modern Python async API
@@ -68,15 +68,19 @@ asyncio.run(main())
 ## Device Control
 
 ```python
-# Check device capabilities
+from buttplug import DeviceOutputCommand, OutputType
+
+# Check device capabilities and send commands
 if device.has_output(OutputType.VIBRATE):
-    await device.vibrate(0.75)  # 0.0 to 1.0
+    await device.run_output(DeviceOutputCommand(OutputType.VIBRATE, 0.75))
 
 if device.has_output(OutputType.ROTATE):
-    await device.rotate(0.5, clockwise=True)
+    await device.run_output(DeviceOutputCommand(OutputType.ROTATE, 0.5))
 
-if device.has_output(OutputType.POSITION):
-    await device.position(1.0, duration_ms=500)  # Move over 500ms
+if device.has_output(OutputType.POSITION_WITH_DURATION):
+    await device.run_output(
+        DeviceOutputCommand(OutputType.POSITION_WITH_DURATION, 1.0, duration=500)
+    )
 
 # Read sensors
 if device.has_input(InputType.BATTERY):
@@ -99,7 +103,7 @@ client.on_server_disconnect = lambda: print("Server disconnected!")
 # Async callbacks are also supported
 async def on_device_added(device):
     if device.has_output(OutputType.VIBRATE):
-        await device.vibrate(0.25)
+        await device.run_output(DeviceOutputCommand(OutputType.VIBRATE, 0.25))
 
 client.on_device_added = on_device_added
 ```
@@ -108,10 +112,20 @@ client.on_device_added = on_device_added
 
 See the [examples/](examples/) directory for more detailed examples:
 
-- `01_hello_world.py` - Connect and list devices
-- `02_device_control.py` - Vibrate, rotate, and position commands
-- `03_reading_sensors.py` - Battery and signal strength
-- `04_advanced_features.py` - Low-level feature access
+- `application.py` - Complete application workflow
+- `connection.py` - Connecting to a server
+- `device_control.py` - Vibrate, rotate, and position commands
+- `device_enumeration.py` - Discovering devices
+- `device_info.py` - Inspecting device features
+- `sensors.py` - Battery and signal strength
+- `errors.py` - Error handling
+
+To run examples from within the repo:
+
+```bash
+uv sync
+uv run python examples/application.py
+```
 
 ## Requirements
 

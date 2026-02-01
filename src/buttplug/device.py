@@ -12,9 +12,10 @@ from buttplug._messages import (
     StopCmd,
 )
 from buttplug._messages.device_info import DeviceInfo
+from buttplug.command import DeviceOutputCommand
 from buttplug.enums import InputType, OutputType
 from buttplug.errors import ButtplugDeviceError, error_from_code
-from buttplug.feature import CommandValue, DeviceFeature
+from buttplug.feature import DeviceFeature
 
 if TYPE_CHECKING:
     from buttplug.client import ButtplugClient
@@ -23,8 +24,8 @@ if TYPE_CHECKING:
 class ButtplugDevice:
     """Represents a connected Buttplug device.
 
-    Provides both device-level convenience methods (vibrate(), rotate(), etc.) that
-    control all matching features, and per-feature access for fine-grained control.
+    Provides both device-level run_output() that controls all matching features,
+    and per-feature access for fine-grained control.
 
     Command values can be specified as:
     - float: Normalized percentage from 0.0 to 1.0 (e.g., 0.5 = 50%)
@@ -32,15 +33,15 @@ class ButtplugDevice:
 
     Example:
         # Device-level: control all vibrators at once
-        await device.vibrate(0.5)  # 50% on all vibrators
+        await device.run_output(DeviceOutputCommand(OutputType.VIBRATE, 0.5))
 
         # Feature-level: control specific motor
         feature = device.features[0]
-        await feature.vibrate(0.75)  # 75% on motor 0 only
+        await feature.run_output(DeviceOutputCommand(OutputType.VIBRATE, 0.75))
 
         # Using steps instead of percent
         step_count = feature.step_count(OutputType.VIBRATE)
-        await feature.vibrate(step_count // 2)  # Half power via steps
+        await feature.run_output(DeviceOutputCommand(OutputType.VIBRATE, step_count // 2))
     """
 
     def __init__(self, client: ButtplugClient, device_info: DeviceInfo) -> None:
@@ -97,83 +98,23 @@ class ButtplugDevice:
         """Get all features that support a specific input type."""
         return [f for f in self._features.values() if f.has_input(input_type)]
 
-    # ============ Device-Level Convenience Methods ============
-    # These control ALL matching features on the device
+    # ============ Device-Level Command Methods ============
 
-    async def vibrate(self, value: CommandValue) -> None:
-        """Set vibration level on all vibrator features.
-
-        Args:
-            value: Float 0.0-1.0 (percent) or int (step value).
-
-        Raises:
-            ButtplugDeviceError: If device has no vibration features.
-        """
-        await self._send_to_all_features(OutputType.VIBRATE, value)
-
-    async def rotate(self, value: CommandValue, clockwise: bool = True) -> None:
-        """Set rotation on all rotation features.
+    async def run_output(self, command: DeviceOutputCommand) -> None:
+        """Send an output command to all features matching the output type.
 
         Args:
-            value: Float 0.0-1.0 (percent) or int (step value).
-            clockwise: Rotation direction.
+            command: The output command specifying type, value, and optional duration.
 
         Raises:
-            ButtplugDeviceError: If device has no rotation features.
+            ButtplugDeviceError: If device has no features matching the output type.
         """
-        # Prefer RotateWithDirection, fall back to Rotate
-        features = self.get_features_with_output(OutputType.ROTATE_WITH_DIRECTION)
-        if features:
-            await asyncio.gather(*[f.rotate(value, clockwise) for f in features])
-        else:
-            await self._send_to_all_features(OutputType.ROTATE, value)
+        features = self.get_features_with_output(command.output_type)
+        if not features:
+            raise ButtplugDeviceError(f"Device has no {command.output_type.value} features")
+        await asyncio.gather(*[f.run_output(command) for f in features])
 
-    async def oscillate(self, value: CommandValue) -> None:
-        """Set oscillation on all oscillation features.
-
-        Args:
-            value: Float 0.0-1.0 (percent) or int (step value).
-
-        Raises:
-            ButtplugDeviceError: If device has no oscillation features.
-        """
-        await self._send_to_all_features(OutputType.OSCILLATE, value)
-
-    async def constrict(self, value: CommandValue) -> None:
-        """Set constriction on all constriction features.
-
-        Args:
-            value: Float 0.0-1.0 (percent) or int (step value).
-
-        Raises:
-            ButtplugDeviceError: If device has no constriction features.
-        """
-        await self._send_to_all_features(OutputType.CONSTRICT, value)
-
-    async def position(self, value: CommandValue, duration_ms: int = 0) -> None:
-        """Move to position on all position features.
-
-        Args:
-            value: Float 0.0-1.0 (percent) or int (step value).
-            duration_ms: Time in ms to reach position (0 = instant).
-
-        Raises:
-            ButtplugDeviceError: If device has no position features.
-        """
-        # Prefer HwPositionWithDuration, fall back to Position
-        features = self.get_features_with_output(OutputType.POSITION_WITH_DURATION)
-        if features:
-            await asyncio.gather(*[f.position(value, duration_ms) for f in features])
-        else:
-            await self._send_to_all_features(OutputType.POSITION, value)
-
-    async def stop(self) -> None:
-        """Stop all device outputs."""
-        msg = StopCmd(id=0, device_index=self.index, outputs=True, inputs=False)
-        response = await self._client._send_device_message(msg)
-        self._check_response(response)
-
-    async def stop_features(self, inputs: bool = True, outputs: bool = True) -> None:
+    async def stop(self, inputs: bool = True, outputs: bool = True) -> None:
         """Stop device outputs and/or unsubscribe from inputs.
 
         Args:
@@ -186,11 +127,11 @@ class ButtplugDevice:
 
     # ============ Sensor Convenience Methods ============
 
-    def has_battery_level(self) -> bool:
+    def has_battery(self) -> bool:
         """Check if device has a battery level sensor."""
         return self.has_input(InputType.BATTERY)
 
-    async def battery_level(self) -> float:
+    async def battery(self) -> float:
         """Read battery level from first battery sensor.
 
         Returns:
@@ -202,13 +143,13 @@ class ButtplugDevice:
         features = self.get_features_with_input(InputType.BATTERY)
         if not features:
             raise ButtplugDeviceError("Device has no battery sensor")
-        return await features[0].battery_level()
+        return await features[0].battery()
 
-    def has_rssi_level(self) -> bool:
+    def has_rssi(self) -> bool:
         """Check if device has an RSSI sensor."""
         return self.has_input(InputType.RSSI)
 
-    async def rssi_level(self) -> int:
+    async def rssi(self) -> int:
         """Read RSSI signal strength from first RSSI sensor.
 
         Returns:
@@ -220,20 +161,9 @@ class ButtplugDevice:
         features = self.get_features_with_input(InputType.RSSI)
         if not features:
             raise ButtplugDeviceError("Device has no RSSI sensor")
-        return await features[0].rssi_level()
+        return await features[0].rssi()
 
     # ============ Internal Methods ============
-
-    async def _send_to_all_features(self, output_type: OutputType, value: CommandValue) -> None:
-        """Send output command to all features with the specified output type."""
-        features = self.get_features_with_output(output_type)
-        output_name = output_type.value
-
-        if not features:
-            raise ButtplugDeviceError(f"Device has no {output_name} features")
-
-        # Send to all matching features in parallel
-        await asyncio.gather(*[f._send_output(output_type, value) for f in features])
 
     def _check_response(self, response: ButtplugMessage) -> None:
         """Check response and raise if error."""

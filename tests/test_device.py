@@ -57,7 +57,9 @@ class TestDeviceFeature:
             feature_index=0,
             feature_description="Stroker",
             output={
-                "HwPositionWithDuration": FeatureOutputDefinition(value=(0, 100), duration=(0, 1000))
+                "HwPositionWithDuration": FeatureOutputDefinition(
+                    value=(0, 100), duration=(0, 1000)
+                )
             },
             input=None,
         )
@@ -185,9 +187,7 @@ class TestButtplugDevice:
                 2: DeviceFeatureDefinition(
                     feature_index=2,
                     feature_description="Rotator",
-                    output={
-                        "RotateWithDirection": FeatureOutputDefinition(value=(0, 10), duration=None)
-                    },
+                    output={"Rotate": FeatureOutputDefinition(value=(0, 10), duration=None)},
                     input=None,
                 ),
                 3: DeviceFeatureDefinition(
@@ -218,7 +218,7 @@ class TestButtplugDevice:
         device = ButtplugDevice(mock_client, multi_feature_device_info)  # type: ignore[arg-type]
 
         assert device.has_output(OutputType.VIBRATE) is True
-        assert device.has_output(OutputType.ROTATE_WITH_DIRECTION) is True
+        assert device.has_output(OutputType.ROTATE) is True
         assert device.has_output(OutputType.POSITION) is False
 
     def test_has_input(
@@ -239,7 +239,7 @@ class TestButtplugDevice:
         vibrate_features = device.get_features_with_output(OutputType.VIBRATE)
         assert len(vibrate_features) == 2
 
-        rotate_features = device.get_features_with_output(OutputType.ROTATE_WITH_DIRECTION)
+        rotate_features = device.get_features_with_output(OutputType.ROTATE)
         assert len(rotate_features) == 1
 
         position_features = device.get_features_with_output(OutputType.POSITION)
@@ -257,19 +257,17 @@ class TestButtplugDevice:
         rssi_features = device.get_features_with_input(InputType.RSSI)
         assert len(rssi_features) == 0
 
-    def test_has_battery_level(
+    def test_has_battery(
         self, mock_client: MockClient, multi_feature_device_info: DeviceInfo
     ) -> None:
-        """has_battery_level checks for battery sensor."""
+        """has_battery checks for battery sensor."""
         device = ButtplugDevice(mock_client, multi_feature_device_info)  # type: ignore[arg-type]
-        assert device.has_battery_level() is True
+        assert device.has_battery() is True
 
-    def test_has_rssi_level(
-        self, mock_client: MockClient, multi_feature_device_info: DeviceInfo
-    ) -> None:
-        """has_rssi_level checks for RSSI sensor."""
+    def test_has_rssi(self, mock_client: MockClient, multi_feature_device_info: DeviceInfo) -> None:
+        """has_rssi checks for RSSI sensor."""
         device = ButtplugDevice(mock_client, multi_feature_device_info)  # type: ignore[arg-type]
-        assert device.has_rssi_level() is False
+        assert device.has_rssi() is False
 
     def test_feature_step_count(
         self, mock_client: MockClient, multi_feature_device_info: DeviceInfo
@@ -281,4 +279,4 @@ class TestButtplugDevice:
         assert vibrate_feature.step_count(OutputType.VIBRATE) == 20
 
         rotate_feature = device.features[2]
-        assert rotate_feature.step_count(OutputType.ROTATE_WITH_DIRECTION) == 10
+        assert rotate_feature.step_count(OutputType.ROTATE) == 10

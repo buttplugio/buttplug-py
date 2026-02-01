@@ -2,7 +2,7 @@
 
 This example shows how to control different types of devices:
 - Vibrators: Set vibration intensity
-- Rotators: Set rotation speed and direction
+- Rotators: Set rotation speed
 - Strokers: Move to position over time
 
 The example checks what each device supports before sending commands,
@@ -17,7 +17,7 @@ Prerequisites:
 
 import asyncio
 
-from buttplug import ButtplugClient, OutputType
+from buttplug import ButtplugClient, DeviceOutputCommand, OutputType
 
 
 async def main() -> None:
@@ -47,43 +47,41 @@ async def main() -> None:
         # Vibration
         if device.has_output(OutputType.VIBRATE):
             print("  Starting vibration at 25%...")
-            await device.vibrate(0.25)
+            await device.run_output(DeviceOutputCommand(OutputType.VIBRATE, 0.25))
             await asyncio.sleep(1)
 
             print("  Increasing to 50%...")
-            await device.vibrate(0.5)
+            await device.run_output(DeviceOutputCommand(OutputType.VIBRATE, 0.5))
             await asyncio.sleep(1)
 
             print("  Full power (100%)...")
-            await device.vibrate(1.0)
+            await device.run_output(DeviceOutputCommand(OutputType.VIBRATE, 1.0))
             await asyncio.sleep(1)
 
         # Rotation
-        if device.has_output(OutputType.ROTATE) or device.has_output(
-            OutputType.ROTATE_WITH_DIRECTION
-        ):
-            print("  Rotating clockwise at 50%...")
-            await device.rotate(0.5, clockwise=True)
-            await asyncio.sleep(2)
-
-            print("  Rotating counter-clockwise...")
-            await device.rotate(0.5, clockwise=False)
+        if device.has_output(OutputType.ROTATE):
+            print("  Rotating at 50%...")
+            await device.run_output(DeviceOutputCommand(OutputType.ROTATE, 0.5))
             await asyncio.sleep(2)
 
         # Position (strokers/linear devices)
-        if device.has_output(OutputType.POSITION) or device.has_output(
-            OutputType.POSITION_WITH_DURATION
-        ):
+        if device.has_output(OutputType.POSITION_WITH_DURATION):
             print("  Moving to top position...")
-            await device.position(1.0, duration_ms=500)
+            await device.run_output(
+                DeviceOutputCommand(OutputType.POSITION_WITH_DURATION, 1.0, duration=500)
+            )
             await asyncio.sleep(1)
 
             print("  Moving to bottom position...")
-            await device.position(0.0, duration_ms=500)
+            await device.run_output(
+                DeviceOutputCommand(OutputType.POSITION_WITH_DURATION, 0.0, duration=500)
+            )
             await asyncio.sleep(1)
 
             print("  Moving to middle...")
-            await device.position(0.5, duration_ms=250)
+            await device.run_output(
+                DeviceOutputCommand(OutputType.POSITION_WITH_DURATION, 0.5, duration=250)
+            )
             await asyncio.sleep(1)
 
         # Stop the device

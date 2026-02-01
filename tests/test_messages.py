@@ -32,14 +32,16 @@ class TestHandshakeMessages:
         msg = RequestServerInfo(id=1, client_name="Test Client")
         result = msg.to_protocol()
 
-        assert result == [{
-            "RequestServerInfo": {
-                "Id": 1,
-                "ClientName": "Test Client",
-                "ProtocolVersionMajor": 4,
-                "ProtocolVersionMinor": 0,
+        assert result == [
+            {
+                "RequestServerInfo": {
+                    "Id": 1,
+                    "ClientName": "Test Client",
+                    "ProtocolVersionMajor": 4,
+                    "ProtocolVersionMinor": 0,
+                }
             }
-        }]
+        ]
 
     def test_request_server_info_deserialize(self):
         """RequestServerInfo deserializes from PascalCase."""
@@ -199,22 +201,19 @@ class TestCommandMessages:
 
     def test_output_cmd_vibrate_serialize(self):
         """OutputCmd for vibrate serializes correctly."""
-        msg = OutputCmd(
-            id=5,
-            device_index=0,
-            feature_index=0,
-            command={"Vibrate": {"Value": 10}}
-        )
+        msg = OutputCmd(id=5, device_index=0, feature_index=0, command={"Vibrate": {"Value": 10}})
         result = msg.to_protocol()
 
-        assert result == [{
-            "OutputCmd": {
-                "Id": 5,
-                "DeviceIndex": 0,
-                "FeatureIndex": 0,
-                "Command": {"Vibrate": {"Value": 10}}
+        assert result == [
+            {
+                "OutputCmd": {
+                    "Id": 5,
+                    "DeviceIndex": 0,
+                    "FeatureIndex": 0,
+                    "Command": {"Vibrate": {"Value": 10}},
+                }
             }
-        }]
+        ]
 
     def test_output_cmd_position_with_duration(self):
         """OutputCmd for position with duration serializes correctly."""
@@ -222,7 +221,7 @@ class TestCommandMessages:
             id=6,
             device_index=1,
             feature_index=0,
-            command={"HwPositionWithDuration": {"Value": 80, "Duration": 250}}
+            command={"HwPositionWithDuration": {"Value": 80, "Duration": 250}},
         )
         result = msg.to_protocol()
 
@@ -232,24 +231,20 @@ class TestCommandMessages:
 
     def test_input_cmd_serialize(self):
         """InputCmd serializes correctly."""
-        msg = InputCmd(
-            id=7,
-            device_index=0,
-            feature_index=2,
-            input_type="Battery",
-            command="Read"
-        )
+        msg = InputCmd(id=7, device_index=0, feature_index=2, input_type="Battery", command="Read")
         result = msg.to_protocol()
 
-        assert result == [{
-            "InputCmd": {
-                "Id": 7,
-                "DeviceIndex": 0,
-                "FeatureIndex": 2,
-                "Type": "Battery",
-                "Command": "Read"
+        assert result == [
+            {
+                "InputCmd": {
+                    "Id": 7,
+                    "DeviceIndex": 0,
+                    "FeatureIndex": 2,
+                    "Type": "Battery",
+                    "Command": "Read",
+                }
             }
-        }]
+        ]
 
     def test_input_reading_deserialize(self, sample_input_reading_data):
         """InputReading deserializes correctly."""
@@ -267,27 +262,16 @@ class TestCommandMessages:
         msg = StopCmd(id=8)
         result = msg.to_protocol()
 
-        assert result == [{
-            "StopCmd": {
-                "Id": 8,
-                "Inputs": True,
-                "Outputs": True
-            }
-        }]
+        assert result == [{"StopCmd": {"Id": 8, "Inputs": True, "Outputs": True}}]
 
     def test_stop_cmd_specific_device(self):
         """StopCmd for specific device serializes correctly."""
         msg = StopCmd(id=9, device_index=0, outputs=True, inputs=False)
         result = msg.to_protocol()
 
-        assert result == [{
-            "StopCmd": {
-                "Id": 9,
-                "DeviceIndex": 0,
-                "Inputs": False,
-                "Outputs": True
-            }
-        }]
+        assert result == [
+            {"StopCmd": {"Id": 9, "DeviceIndex": 0, "Inputs": False, "Outputs": True}}
+        ]
 
 
 class TestMessageParsing:
