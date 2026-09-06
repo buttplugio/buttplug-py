@@ -81,6 +81,13 @@ class ButtplugClient:
             Callable[[Exception], None] | Callable[[Exception], Awaitable[None]] | None
         ) = None
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *_):
+        if self.connected:
+            await self.disconnect()
+
     @property
     def name(self) -> str:
         """Client application name."""
